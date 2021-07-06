@@ -1,0 +1,85 @@
+body {
+  background-color: springgreen;
+}
+
+h1 {
+  text-align: center;
+  color: aliceblue;
+  font-size: xxx-large;
+  text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;
+}
+
+.button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+button {
+  display: inline-block;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 15px 32px;
+  text-align: center;
+  text-decoration: none;
+  font-size: 16px;
+}
+
+#name {
+  text-align: center;
+  color: blue;
+  text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;
+  font-size: large;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+img,
+#content {
+  width: 45%;
+}
+
+img {
+  display: none;
+  border: 5px solid coral;
+  border-radius: 5px;
+  width: 30%;
+  margin: 20px 20px 10px 50px;
+}
+
+#content {
+  text-align: center;
+  display: none;
+  float: left;
+  margin: 10px 30px 10px 30px;
+  background-color: #e5ff00;
+  padding: 30px 30px 30px 30px;
+  border: 10px solid black;
+  border-radius: 25px;
+}
+
+a {
+  display: none;
+  text-decoration: none;
+  text-align: center;
+  background-color: white;
+  padding: 5px;
+  border-radius: 5px;
+  width: 90%;
+  margin: 10px auto 10px auto;
+}
+
+a:visited {
+  text-decoration: none;
+  color: black;
+}
+
+a:hover {
+  background: white;
+  color: red;
+}
+
+footer {
+  position: absolute;
+  bottom: 0;
+  color: blue;
+}
