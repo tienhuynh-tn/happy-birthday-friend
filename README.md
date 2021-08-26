@@ -14,4 +14,4 @@ By the way, this is for me to practice Web Development.
 Just :computer_mouse: [click here](https://tienhuynh-tn.github.io/HappyBirthdayNhatLinh/) and enjoy :ok_hand:
 
 ## License & Copyright
-&copy; tienhuynh-tn Tien Huynh Licensed under the [MIT LICENSE](https://github.com/tienhuynh-tn/HappyBirthdayNhatLinh/blob/main/LICENSE).
+&copy; 2021 Tien Huynh tienhuynh-tn Licensed under the [MIT LICENSE](https://github.com/tienhuynh-tn/HappyBirthdayNhatLinh/blob/main/LICENSE).
