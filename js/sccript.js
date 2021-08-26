@@ -15,8 +15,8 @@ function clickMe() {
     document.getElementById("name").innerHTML =
       "Gửi lời chúc không thân thương và vô cùng khó chịu vì mày bấm cancel mà không chịu nhập tên của mày vào!!!";
   }
-  document.getElementById("image").style.display = "inline-block";
+  document.getElementById("img").style.display = "block";
+  document.getElementById("content").style.display = "block";
   document.getElementById("button").style.display = "none";
-  document.getElementById("content").style.display = "inline-block";
   document.getElementById("link").style.display = "block";
 }
