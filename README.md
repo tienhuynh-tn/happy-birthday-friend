@@ -16,4 +16,4 @@ Just :computer_mouse: [click here](https://tienhuynh-tn.github.io/HappyBirthdayN
 ## License & Copyright
 &copy; 2021 Tien Huynh tienhuynh-tn Licensed under the [MIT LICENSE](https://github.com/tienhuynh-tn/HappyBirthdayNhatLinh/blob/main/LICENSE).
 
-###### :love_you_gesture:	 Feel free to use and star my repository if you find something interesting :love_you_gesture:	
+> :love_you_gesture: Feel free to use my repository and star it if you find something interesting :love_you_gesture:
