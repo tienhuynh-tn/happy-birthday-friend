@@ -1,0 +1,151 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+@media screen and (min-width: 0px) and (max-width: 1499px) {
+    .full-screen {
+        display: none;
+    }
+
+    .not-full-screen {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+    }
+
+    .not-full-screen-text {
+        font-size: x-large;
+        font-family: sans-serif;
+    }
+}
+
+@media screen and (min-width: 1500px) {
+    .not-full-screen {
+        display: none;
+    }
+
+    body {
+        background-color: #6FCCD1;
+        background-image: url(./img/birthday-cake.jpg);
+        background-repeat: no-repeat;
+        background-size: 80%;
+        background-position: center;
+        background-attachment: fixed;
+    }
+
+    .birthday-candle {
+        position: absolute;
+        top: 41%;
+        left: 28%;
+        width: 10%;
+    }
+
+    .fire-1 {
+        position: absolute;
+        top: 38%;
+        left: 29.6%;
+        width: 4%;
+    }
+
+    .fire-2 {
+        position: absolute;
+        top: 38%;
+        left: 32.5%;
+        width: 4%;
+    }
+
+    .fire-3 {
+        position: absolute;
+        top: 28%;
+        left: 33.4%;
+        width: 4%;
+    }
+
+    .fire-4 {
+        position: absolute;
+        top: 28%;
+        left: 38%;
+        width: 4%;
+    }
+
+    .fire-5 {
+        position: absolute;
+        top: 27%;
+        left: 41%;
+        width: 4%;
+    }
+
+    .fire-6 {
+        position: absolute;
+        top: 28%;
+        left: 45.5%;
+        width: 4%;
+    }
+
+    .fire-7 {
+        position: absolute;
+        top: 20%;
+        left: 39.7%;
+        width: 4%;
+    }
+
+    .fire-8 {
+        position: absolute;
+        top: 20%;
+        left: 44%;
+        width: 4%;
+    }
+
+    .fire-9 {
+        position: absolute;
+        top: 21%;
+        left: 47%;
+        width: 4%;
+    }
+
+    .fire-10 {
+        position: absolute;
+        top: 21%;
+        left: 50%;
+        width: 4%;
+    }
+
+    .fire-11 {
+        position: absolute;
+        top: 28%;
+        left: 48.2%;
+        width: 4%;
+    }
+
+    .fire-12 {
+        position: absolute;
+        top: 22%;
+        left: 56%;
+        width: 4%;
+    }
+
+    .fire-13 {
+        position: absolute;
+        top: 27%;
+        left: 53%;
+        width: 4%;
+    }
+
+    .fire-14 {
+        position: absolute;
+        top: 28%;
+        left: 57.6%;
+        width: 4%;
+    }
+
+    .fire-15 {
+        position: absolute;
+        top: 28%;
+        left: 62%;
+        width: 4%;
+    }
+
+}

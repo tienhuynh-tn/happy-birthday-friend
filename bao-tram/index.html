@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, user-scalable=no">
+    <link rel="stylesheet" href="./style.css">
+    <title>Happy Birthday</title>
+
+    <script>
+        var isChrome = /Chrome/.test(navigator.userAgent) && /Google Inc/.test(navigator.vendor);
+        if (!isChrome) {
+            $('#iframeAudio').remove()
+        }
+        else {
+            $('#playAudio').remove() // just to make sure that it will not have 2x audio in the background 
+        }
+    </script>
+
+</head>
+
+
+
+<body>
+    <div class="not-full-screen">
+        <div class="not-full-screen-text">BIG SCREEN ONLY!</div>
+    </div>
+    <div class="full-screen">
+        <iframe src="./audio/silence.mp3" allow="autoplay" id="audio" style="display: none"></iframe>
+
+        <audio id="player" autoplay loop>
+            <source src="./audio/song.mp3" type="audio/mp3">
+        </audio>
+
+        <img class="birthday-candle" src="./img/21.png" alt="21 candles">
+        <img class="fire fire-1" src="./img/fire.png" alt="fire">
+        <img class="fire fire-2" src="./img/fire.png" alt="fire">
+        <img class="fire fire-3" src="./img/fire.png" alt="fire">
+        <img class="fire fire-4" src="./img/fire.png" alt="fire">
+        <img class="fire fire-5" src="./img/fire.png" alt="fire">
+        <img class="fire fire-6" src="./img/fire.png" alt="fire">
+        <img class="fire fire-7" src="./img/fire.png" alt="fire">
+        <img class="fire fire-8" src="./img/fire.png" alt="fire">
+        <img class="fire fire-9" src="./img/fire.png" alt="fire">
+        <img class="fire fire-10" src="./img/fire.png" alt="fire">
+        <img class="fire fire-11" src="./img/fire.png" alt="fire">
+        <img class="fire fire-12" src="./img/fire.png" alt="fire">
+        <img class="fire fire-13" src="./img/fire.png" alt="fire">
+        <img class="fire fire-14" src="./img/fire.png" alt="fire">
+        <img class="fire fire-15" src="./img/fire.png" alt="fire">
+    </div>
+    </div>
+
+    <div class="btn">
+        <button>Lighted the candles!</button>
+    </div>
+
+    <script src="./script.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,94 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  background-color: springgreen;
+  margin: 0;
+  padding: 0;
+}
+
+h1 {
+  text-align: center;
+  color: aliceblue;
+  font-size: xxx-large;
+  text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;
+}
+
+button {
+  display: block;
+  width: 40%;
+  margin: 0 auto;
+  padding: 15px 32px;
+  text-align: center;
+  text-decoration: none;
+  font-size: 16px;
+}
+
+#name {
+  text-align: center;
+  color: blue;
+  text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;
+  font-size: large;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+#name {
+  text-align: center;
+  color: blue;
+  text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;
+  font-size: large;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  display: block;
+}
+
+img, #content {
+  display: none;
+  width: 40%;
+  float: left;
+  padding: 10px;
+  margin: 5%;
+}
+
+#content {
+  border: 10px solid black;
+  text-align: center;
+  background-color: #e5ff00;
+  border-radius: 25px;
+}
+
+a {
+  display: none;
+  text-decoration: none;
+  text-align: center;
+  background-color: white;
+  padding: 5px;
+  border-radius: 5px;
+  margin: 5% auto;
+}
+
+a:visited {
+  text-decoration: none;
+  color: black;
+}
+
+a:hover {
+  background: white;
+  color: red;
+}
+
+footer {
+  clear: left;
+  margin-top: 50px;
+  color: blue;
+  background-color: pink;
+  padding: 20px;
+}
+
+@media screen and (max-width: 430px){
+  img, #content {
+    display: none;
+    width: 90%;
+    margin: 3% 3%;
+  }
+}

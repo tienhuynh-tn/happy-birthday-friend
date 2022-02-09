@@ -1,0 +1,132 @@
+html {
+  background: url(../img/HinhTienVaNhatLinh.jpg) no-repeat center fixed;
+  background-size: cover;
+  background-color: rgba(228, 131, 40, 0.5);
+}
+
+#loichuc,
+#video {
+  text-align: center;
+  display: block;
+  width: 48%;
+  float: left;
+}
+
+#loichuc {
+  margin-top: 10%;
+  margin-left: 30px;
+}
+
+h2 {
+  color: salmon;
+  font-size: xx-large;
+  text-transform: uppercase;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;
+  animation-name: animate;
+  animation-duration: 5s;
+  animation-iteration-count: infinite;
+}
+
+@keyframes animate {
+  0% {
+    left: 0px;
+    transform: rotate(0deg);
+  }
+  25% {
+    left: 0px;
+    transform: rotate(20deg);
+    color: crimson;
+  }
+  38% {
+    left: 400px;
+    transform: rotate(0deg);
+    color: gold;
+  }
+  55% {
+    left: 400px;
+    transform: rotate(-20deg);
+    color: aqua;
+  }
+  70% {
+    left: 0px;
+    transform: rotate(0deg);
+    color: violet;
+  }
+  100% {
+    left: 0px;
+    transform: rotate(-360deg);
+  }
+}
+
+p {
+  border-radius: 20px;
+  padding: 20px;
+  background-color: wheat;
+  opacity: 0.8;
+  font-size: larger;
+  color: rgb(0, 0, 0);
+  margin-left: 30px;
+}
+
+video.cangiua {
+  width: 50%;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 20px;
+  border: 5px solid rgb(255, 166, 0);
+  border-radius: 5px;
+}
+
+@media screen and (max-width: 430px){
+  h2 {
+    font-size: smaller;
+  }
+
+  p {
+    padding: 5px;
+    margin: 0;
+    font-size: small;
+    text-align: left;
+    border-radius: 5px;
+  }
+
+  @keyframes animate {
+    0% {
+      left: 0px;
+      transform: rotate(0deg);
+    }
+    25% {
+      left: 0px;
+      transform: rotate(20deg);
+      color: crimson;
+    }
+    38% {
+      left: 40px;
+      transform: rotate(0deg);
+      color: gold;
+    }
+    55% {
+      left: 40px;
+      transform: rotate(-20deg);
+      color: aqua;
+    }
+    70% {
+      left: 0px;
+      transform: rotate(0deg);
+      color: violet;
+    }
+    100% {
+      left: 0px;
+      transform: rotate(-360deg);
+    }
+  }
+
+  #loichuc, #video {
+  width: 100%;
+  }
+
+  #loichuc {
+    margin: 0%;
+  }
+}
