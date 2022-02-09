@@ -7,31 +7,46 @@
     <meta name="viewport" content="width=device-width, user-scalable=no">
     <link rel="stylesheet" href="./style.css">
     <title>Happy Birthday</title>
-
-    <script>
-        var isChrome = /Chrome/.test(navigator.userAgent) && /Google Inc/.test(navigator.vendor);
-        if (!isChrome) {
-            $('#iframeAudio').remove()
-        }
-        else {
-            $('#playAudio').remove() // just to make sure that it will not have 2x audio in the background 
-        }
-    </script>
-
 </head>
-
-
 
 <body>
     <div class="not-full-screen">
         <div class="not-full-screen-text">BIG SCREEN ONLY!</div>
     </div>
     <div class="full-screen">
-        <iframe src="./audio/silence.mp3" allow="autoplay" id="audio" style="display: none"></iframe>
+        <div class="waviy">
+            <span style="--i:1">H</span>
+            <span style="--i:2">A</span>
+            <span style="--i:3">P</span>
+            <span style="--i:4">P</span>
+            <span style="--i:5">Y</span>
+            <span style="--i:6"></span>
+            <span style="--i:7">B</span>
+            <span style="--i:8">I</span>
+            <span style="--i:9">R</span>
+            <span style="--i:10">T</span>
+            <span style="--i:11">H</span>
+            <span style="--i:12">D</span>
+            <span style="--i:13">A</span>
+            <span style="--i:14">Y</span>
+        </div>
 
-        <audio id="player" autoplay loop>
-            <source src="./audio/song.mp3" type="audio/mp3">
-        </audio>
+        <div class="birthdayCard">
+            <div class="cardFront">
+                <h3 class="happy">HAPPY BIRTHDAY!</h3>
+                <div class="balloons">
+                    <div class="balloonOne"></div>
+                    <div class="balloonTwo"></div>
+                    <div class="balloonThree"></div>
+                    <div class="balloonFour"></div>
+                </div>
+            </div>
+            <div class="cardInside">
+                <h3 class="back">HAPPY BIRTHDAY!</h3>
+                <p>Age 21 with joy, Today is your special day. A small gift from me to you. Happy Birthday my Friend! &#10084; </p>
+                        <p class="name">Tien</p>
+            </div>
+        </div>
 
         <img class="birthday-candle" src="./img/21.png" alt="21 candles">
         <img class="fire fire-1" src="./img/fire.png" alt="fire">
@@ -49,12 +64,17 @@
         <img class="fire fire-13" src="./img/fire.png" alt="fire">
         <img class="fire fire-14" src="./img/fire.png" alt="fire">
         <img class="fire fire-15" src="./img/fire.png" alt="fire">
-    </div>
+
+        <div class="btn">
+            <button class="button-52" role="button" onclick="candle()">Lighted the candles!</button>
+        </div>
+
+        <audio controls autoplay loop style="position: fixed; bottom: 0; right: 0; opacity: 0.5;">
+            <source src="./audio/song.mp3" type="audio/mpeg">
+        </audio>
     </div>
 
-    <div class="btn">
-        <button>Lighted the candles!</button>
-    </div>
+
 
     <script src="./script.js"></script>
 </body>
