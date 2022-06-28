@@ -3,7 +3,7 @@
 ![Birthday Meme](https://www.icegif.com/wp-content/uploads/happy-birthday-icegif-8.gif)
 
 ## Description
-This is a fun and heartwarming website that I made for my friend on her birthday.  
+This is a fun and heartwarming website that I made for my friends on their birthday.  
 By the way, this is for me to practice Web Development.
 
 ## What are inside this web?
@@ -16,6 +16,6 @@ Just :computer_mouse: and enjoy :ok_hand:
 - [Nhật Linh](https://tienhuynh-tn.github.io/happy-birthday-friend/nhat-linh/)
 
 ## License & Copyright
-&copy; 2021 Tien Huynh tienhuynh-tn Licensed under the [MIT LICENSE](https://github.com/tienhuynh-tn/HappyBirthdayNhatLinh/blob/main/LICENSE).
+&copy; 2021 Tien Huynh tienhuynh-tn Licensed under the [MIT LICENSE](https://github.com/tienhuynh-tn/happy-birthday-friend/blob/main/LICENSE).
 
 > :love_you_gesture: Feel free to use my repository and star it if you find something interesting :love_you_gesture:
