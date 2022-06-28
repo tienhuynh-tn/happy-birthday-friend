@@ -11,7 +11,9 @@ By the way, this is for me to practice Web Development.
   :point_right: Bad and funny site.
   
 ## How can you access my web?
-Just :computer_mouse: [click here](https://tienhuynh-tn.github.io/HappyBirthdayNhatLinh/) and enjoy :ok_hand:
+Just :computer_mouse: and enjoy :ok_hand:
+- [Bảo Trâm](https://tienhuynh-tn.github.io/happy-birthday-friend/bao-tram/)
+- [Nhật Linh](https://tienhuynh-tn.github.io/happy-birthday-friend/nhat-linh/)
 
 ## License & Copyright
 &copy; 2021 Tien Huynh tienhuynh-tn Licensed under the [MIT LICENSE](https://github.com/tienhuynh-tn/HappyBirthdayNhatLinh/blob/main/LICENSE).
