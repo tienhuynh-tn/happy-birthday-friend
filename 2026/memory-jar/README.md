@@ -26,6 +26,18 @@ npm run build
 npm run start
 ```
 
+## GitHub Pages Deployment
+
+This project is configured for GitHub Pages under the subpath:
+`/happy-birthday-friend/memory-jar/`
+
+Build output is generated at:
+`2026/memory-jar/out/`
+
+To deploy on the existing main branch:
+1. Run `npm run deploy:memory-jar`
+2. This copies `out/` into `/memory-jar/` at the repo root.
+
 ## Project Structure
 - `app/` Next.js App Router pages and layout
 - `components/` UI components
