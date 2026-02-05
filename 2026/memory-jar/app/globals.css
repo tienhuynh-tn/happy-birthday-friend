@@ -1,0 +1,120 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+}
+
+body {
+  @apply bg-cream text-ink antialiased;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+.noise-bg {
+  background-image:
+    radial-gradient(circle at 12% 8%, rgba(255, 205, 200, 0.6), transparent 45%),
+    radial-gradient(circle at 82% 12%, rgba(255, 221, 195, 0.65), transparent 45%),
+    radial-gradient(circle at 18% 75%, rgba(255, 245, 233, 0.9), transparent 40%),
+    linear-gradient(180deg, rgba(255, 214, 201, 0.55), rgba(255, 245, 233, 0.35)),
+    repeating-linear-gradient(
+      0deg,
+      rgba(255, 255, 255, 0.06),
+      rgba(255, 255, 255, 0.06) 1px,
+      transparent 1px,
+      transparent 3px
+    );
+}
+
+.birthday-bg {
+  position: relative;
+}
+
+.birthday-bg::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    radial-gradient(circle at 15% 25%, rgba(248, 179, 184, 0.35), transparent 45%),
+    radial-gradient(circle at 80% 20%, rgba(255, 215, 194, 0.4), transparent 42%),
+    radial-gradient(circle at 20% 80%, rgba(183, 228, 199, 0.35), transparent 40%),
+    radial-gradient(circle at 85% 75%, rgba(255, 245, 233, 0.8), transparent 45%);
+  filter: blur(24px);
+  z-index: 0;
+}
+
+.birthday-icons {
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'%3E%3Cg fill='none' stroke='%23f6b2b7' stroke-width='2' opacity='0.35'%3E%3Cpath d='M24 64c0-12 10-22 22-22s22 10 22 22v10H24V64z'/%3E%3Cpath d='M32 74h44v18H32z'/%3E%3Cpath d='M54 44v-10'/%3E%3Cpath d='M44 48v-8'/%3E%3Cpath d='M64 48v-8'/%3E%3C/g%3E%3Cpath d='M114 28c8 0 14 6 14 14s-6 14-14 14' stroke='%23ffd7c2' stroke-width='2' opacity='0.35'/%3E%3Cpath d='M114 56v22' stroke='%23ffd7c2' stroke-width='2' opacity='0.35'/%3E%3Cpath d='M112 104l6-8 6 8' stroke='%23ffe7c5' stroke-width='2' opacity='0.35'/%3E%3Cpath d='M104 116l4-6 4 6' stroke='%23ffe7c5' stroke-width='2' opacity='0.35'/%3E%3Ccircle cx='38' cy='118' r='8' stroke='%23f7c9d2' stroke-width='2' opacity='0.35'/%3E%3Cpath d='M38 126v12' stroke='%23f7c9d2' stroke-width='2' opacity='0.35'/%3E%3Cpath d='M126 126l-6 10 12-6-10-6 4 12' stroke='%23f9d7a8' stroke-width='2' opacity='0.35'/%3E%3C/svg%3E");
+  background-size: 200px 200px;
+  background-repeat: repeat;
+  opacity: 0.2;
+  filter: blur(2px);
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .birthday-icons {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+@keyframes card {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes bubble {
+  0% {
+    transform: translateY(0) scale(0.8);
+    opacity: 0;
+  }
+  20% {
+    opacity: 0.6;
+  }
+  100% {
+    transform: translateY(-140px) scale(1.1);
+    opacity: 0;
+  }
+}
+
+@keyframes final-pop {
+  0% {
+    opacity: 0;
+    transform: translateY(6px) scale(0.92);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes finalBubble {
+  0% {
+    transform: translateY(0) scale(0.9);
+    opacity: 0;
+  }
+  20% {
+    opacity: 0.6;
+  }
+  100% {
+    transform: translateY(-120vh) scale(1.1);
+    opacity: 0;
+  }
+}

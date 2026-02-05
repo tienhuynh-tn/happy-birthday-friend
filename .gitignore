@@ -1,0 +1,25 @@
+# macOS
+.DS_Store
+
+# IDEs
+.idea/
+.vscode/
+
+# node / next
+node_modules/
+.next/
+out/
+build/
+dist/
+.env*
+
+# logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# env
+.env
+.env.local
+.env.*.local
