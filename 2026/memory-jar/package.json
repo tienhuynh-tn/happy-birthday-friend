@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "deploy:memory-jar": "next build && rm -rf ../../memory-jar && mkdir -p ../../memory-jar && cp -R out/* ../../memory-jar/"
+    "deploy:memory-jar": "next build && rm -rf ../memory-jar-site && mkdir -p ../memory-jar-site && cp -R out/* ../memory-jar-site/"
   },
   "dependencies": {
     "next": "14.2.5",

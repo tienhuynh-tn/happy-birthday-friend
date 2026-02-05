@@ -5,8 +5,8 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
-  basePath: "/happy-birthday-friend/memory-jar",
-  assetPrefix: "/happy-birthday-friend/memory-jar/",
+  basePath: "/happy-birthday-friend/2026/memory-jar",
+  assetPrefix: "/happy-birthday-friend/2026/memory-jar/",
 };
 
 export default nextConfig;

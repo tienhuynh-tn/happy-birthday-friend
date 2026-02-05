@@ -18,19 +18,21 @@ export function Modal({ isOpen, title, onClose, children }: ModalProps) {
     if (!isOpen) return;
     const previouslyFocused = document.activeElement as HTMLElement | null;
     const container = containerRef.current;
-    const focusable = container?.querySelectorAll<HTMLElement>(
+    const focusables = container?.querySelectorAll<HTMLElement>(
       "button, [href], input, textarea, select, [tabindex]:not([tabindex='-1'])"
     );
-    const first = focusable?.[0];
-    first?.focus();
+    const first = focusables?.[0];
+    const last = focusables?.[focusables.length - 1];
+    if (!first || !last) return;
+    first.focus();
 
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
         event.preventDefault();
         onClose();
       }
-      if (event.key === "Tab" && focusable && focusable.length > 0) {
-        const last = focusable[focusable.length - 1];
+      if (event.key === "Tab") {
+        if (!first || !last) return;
         if (event.shiftKey && document.activeElement === first) {
           event.preventDefault();
           last.focus();

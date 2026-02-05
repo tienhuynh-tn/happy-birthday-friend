@@ -26,17 +26,24 @@ npm run build
 npm run start
 ```
 
-## GitHub Pages Deployment
+## GitHub Pages Deployment (Root = /)
 
-This project is configured for GitHub Pages under the subpath:
-`/happy-birthday-friend/memory-jar/`
+This repository is served from the root of the `main` branch. To avoid overwriting source files in
+`/2026/memory-jar/`, the static export is copied into a publish folder:
 
-Build output is generated at:
-`2026/memory-jar/out/`
+```
+/2026/memory-jar-site/
+```
 
-To deploy on the existing main branch:
+Deploy steps:
 1. Run `npm run deploy:memory-jar`
-2. This copies `out/` into `/memory-jar/` at the repo root.
+2. Commit the contents of `/2026/memory-jar-site/`
+
+The app will be available at:
+`https://tienhuynh-tn.github.io/happy-birthday-friend/2026/memory-jar-site/`
+
+If you need the URL to be `/2026/memory-jar/`, the source folder would need to be moved or a separate
+publish directory wired into Pages, which is not allowed by current repo settings.
 
 ## Project Structure
 - `app/` Next.js App Router pages and layout
