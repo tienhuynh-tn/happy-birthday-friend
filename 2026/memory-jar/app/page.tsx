@@ -254,9 +254,7 @@ export default function HomePage() {
       {activeNote?.id === "wish-final" && (
         <iframe
           key={`final-audio-${finalAudioNonce}`}
-          src={`https://w.soundcloud.com/player/?url=${encodeURIComponent(
-            "https://on.soundcloud.com/IxkkbxhJ2L6efkNNH0"
-          )}&auto_play=true&hide_related=true&show_comments=false&show_user=false&show_reposts=false&visual=false`}
+          src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/soundcloud%253Atracks%253A757137901&auto_play=true&visual=false"
           title="Final wish audio"
           allow="autoplay"
           className="fixed -left-[9999px] top-0 h-[1px] w-[1px] opacity-0 pointer-events-none"
