@@ -1,19 +1,17 @@
-# :birthday: Happy Birthday Web :birthday:  
+# :birthday: Happy Birthday Web :birthday:
 
-![Birthday Meme](https://www.icegif.com/wp-content/uploads/happy-birthday-icegif-8.gif)
+![Birthday Meme](https://miro.medium.com/v2/resize:fit:1400/0*kUTOxg6HYY12lkOb)
 
 ## Description
-This is a fun and heartwarming website that I made for my friends on their birthday.  
-By the way, this is for me to practice Web Development.
+This repo hosts a collection of birthday mini-sites and web gifts.
 
-## What are inside this web?
-  :point_right: Basic HTML5, CSS3 and JavaScipt.  
-  :point_right: Bad and funny site.
-  
-## How can you access my web?
-Just :computer_mouse: and enjoy :ok_hand:
-- [Bảo Trâm](https://tienhuynh-tn.github.io/happy-birthday-friend/bao-tram/)
-- [Nhật Linh](https://tienhuynh-tn.github.io/happy-birthday-friend/nhat-linh/)
+## Live Sites
+- https://tienhuynh-tn.github.io/happy-birthday-friend/bao-tram/
+- https://tienhuynh-tn.github.io/happy-birthday-friend/nhat-linh/
+- https://tienhuynh-tn.github.io/happy-birthday-friend/memory-jar/
+
+## Deployment overview
+- GitHub Pages serves static content from the `main` branch.
 
 ## License & Copyright
 &copy; 2021 Tien Huynh tienhuynh-tn Licensed under the [MIT LICENSE](https://github.com/tienhuynh-tn/happy-birthday-friend/blob/main/LICENSE).

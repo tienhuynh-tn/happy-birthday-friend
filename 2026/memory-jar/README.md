@@ -2,6 +2,11 @@
 
 A single-page birthday web app built with Next.js (App Router), TypeScript, and Tailwind CSS.
 
+## Tech stack
+- Next.js (App Router) with static export
+- TypeScript
+- Tailwind CSS
+
 ## Features
 - Candy-jar style glass container with floating wish notes
 - Tap a note to open a birthday card modal
@@ -10,7 +15,10 @@ A single-page birthday web app built with Next.js (App Router), TypeScript, and 
 - CSS-based celebration effects
 - Responsive and accessible UI
 
-## Getting Started
+## Live URL
+https://tienhuynh-tn.github.io/happy-birthday-friend/memory-jar/
+
+## Local dev
 
 ```bash
 npm install
@@ -19,31 +27,38 @@ npm run dev
 
 Open `http://localhost:3000` to view the app.
 
-## Build & Run
+## Build & export
 
 ```bash
 npm run build
-npm run start
 ```
 
-## GitHub Pages Deployment (Root = /)
+Static export output is written to `./out`.
 
-This repository is served from the root of the `main` branch. To avoid overwriting source files in
-`/2026/memory-jar/`, the static export is copied into a publish folder:
+## Quick deploy Memory Jar
 
+```bash
+cd 2026/memory-jar
+npm install
+npm run build
+cd ../..
+rm -rf memory-jar
+cp -R 2026/memory-jar/out memory-jar
+git add memory-jar
+git commit -m "deploy: update memory-jar"
+git push
 ```
-/2026/memory-jar-site/
-```
 
-Deploy steps:
-1. Run `npm run deploy:memory-jar`
-2. Commit the contents of `/2026/memory-jar-site/`
+## Deployment notes
+- GitHub Pages serves static content from the `main` branch at the repo root (`/`).
+- `out/` inside `2026/memory-jar` is intermediate output only.
+- The published folder is `/memory-jar` at the repo root.
+- Do NOT commit `.next/`.
 
-The app will be available at:
-`https://tienhuynh-tn.github.io/happy-birthday-friend/2026/memory-jar-site/`
-
-If you need the URL to be `/2026/memory-jar/`, the source folder would need to be moved or a separate
-publish directory wired into Pages, which is not allowed by current repo settings.
+## Troubleshooting
+- If CSS/JS 404, confirm you are opening:
+  https://tienhuynh-tn.github.io/happy-birthday-friend/memory-jar/
+- If `wishes.txt` 404, ensure it exists in `out/` and is fetched via `fetch("./wishes.txt")`.
 
 ## Project Structure
 - `app/` Next.js App Router pages and layout
