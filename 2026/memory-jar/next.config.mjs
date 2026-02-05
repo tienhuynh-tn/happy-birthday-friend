@@ -1,12 +1,11 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  reactStrictMode: true,
   output: "export",
-  images: {
-    unoptimized: true,
-  },
-  basePath: "/happy-birthday-friend/2026/memory-jar",
-  assetPrefix: "/happy-birthday-friend/2026/memory-jar/",
+  images: { unoptimized: true },
+
+  // GitHub Pages repo + subfolder publish
+  basePath: "/happy-birthday-friend/memory-jar",
+  assetPrefix: "/happy-birthday-friend/memory-jar/",
 };
 
 export default nextConfig;
