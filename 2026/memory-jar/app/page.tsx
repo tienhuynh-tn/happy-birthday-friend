@@ -32,6 +32,11 @@ export default function HomePage() {
   const [hasPlayedFinalFx, setHasPlayedFinalFx] = useState(false);
   const [stopMainMusicSignal, setStopMainMusicSignal] = useState(0);
   const [finalAudioNonce, setFinalAudioNonce] = useState(0);
+  const [finalAudioReady, setFinalAudioReady] = useState(true);
+  const isMobile = useMemo(() => {
+    if (typeof navigator === "undefined") return false;
+    return /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
+  }, []);
 
   // Celebrate on first load.
   useEffect(() => {
@@ -139,7 +144,11 @@ export default function HomePage() {
     }
     if (note.id === "wish-final") {
       setStopMainMusicSignal((prev) => prev + 1);
-      setFinalAudioNonce((prev) => prev + 1);
+      if (isMobile) {
+        setFinalAudioReady(false);
+      } else {
+        setFinalAudioNonce((prev) => prev + 1);
+      }
     }
   };
 
@@ -233,12 +242,14 @@ export default function HomePage() {
           title={activeNote.author}
           onClose={() => {
             setActiveNote(null);
+            setFinalAudioReady(false);
             setFinalAudioNonce((prev) => (activeNote?.id === "wish-final" ? prev + 1 : prev));
           }}
         >
           <div
             onClick={() => {
-              if (activeNote.id === "wish-final") {
+              if (activeNote.id === "wish-final" && isMobile && !finalAudioReady) {
+                setFinalAudioReady(true);
                 setFinalAudioNonce((prev) => prev + 1);
               }
             }}
@@ -247,11 +258,23 @@ export default function HomePage() {
               <p className="text-xs uppercase tracking-widest text-ink/50">{activeNote.date}</p>
             )}
             <p className="text-base leading-relaxed whitespace-pre-line">{activeNote.message}</p>
+            {activeNote.id === "wish-final" && isMobile && !finalAudioReady && (
+              <button
+                type="button"
+                onClick={() => {
+                  setFinalAudioReady(true);
+                  setFinalAudioNonce((prev) => prev + 1);
+                }}
+                className="mt-4 w-full rounded-full bg-ink px-4 py-2 text-sm font-semibold text-white"
+              >
+                Tap to play music 🎵
+              </button>
+            )}
           </div>
         </Modal>
       )}
 
-      {activeNote?.id === "wish-final" && (
+      {activeNote?.id === "wish-final" && (!isMobile || finalAudioReady) && (
         <iframe
           key={`final-audio-${finalAudioNonce}`}
           src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/soundcloud%253Atracks%253A757137901&auto_play=true&visual=false"
