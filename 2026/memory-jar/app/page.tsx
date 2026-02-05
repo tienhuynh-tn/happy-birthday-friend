@@ -254,9 +254,11 @@ export default function HomePage() {
       {activeNote?.id === "wish-final" && (
         <iframe
           key={`final-audio-${finalAudioNonce}`}
-          src="https://www.youtube.com/embed/S7KA4tQ483o?si=MpXAXgHYIliQzU64&controls=0&start=10&autoplay=1&playsinline=1"
+          src={`https://w.soundcloud.com/player/?url=${encodeURIComponent(
+            "https://on.soundcloud.com/IxkkbxhJ2L6efkNNH0"
+          )}&auto_play=true&hide_related=true&show_comments=false&show_user=false&show_reposts=false&visual=false`}
           title="Final wish audio"
-          allow="autoplay; encrypted-media"
+          allow="autoplay"
           className="fixed -left-[9999px] top-0 h-[1px] w-[1px] opacity-0 pointer-events-none"
         />
       )}
