@@ -271,10 +271,10 @@ export default function HomePage() {
                 height: `${8 + (index % 5) * 6}px`,
                 background:
                   index % 3 === 0
-                    ? "radial-gradient(circle at 30% 30%, rgba(255,255,255,0.55), rgba(244,143,177,0.55) 55%)"
+                    ? "radial-gradient(circle at 30% 30%, rgba(255,255,255,0.6), rgba(244,114,182,0.6) 55%)"
                     : index % 3 === 1
-                      ? "radial-gradient(circle at 30% 30%, rgba(255,255,255,0.5), rgba(251,146,118,0.55) 55%)"
-                      : "radial-gradient(circle at 30% 30%, rgba(255,255,255,0.5), rgba(110,231,183,0.55) 55%)",
+                      ? "radial-gradient(circle at 30% 30%, rgba(255,255,255,0.55), rgba(251,113,133,0.6) 55%)"
+                      : "radial-gradient(circle at 30% 30%, rgba(255,255,255,0.55), rgba(52,211,153,0.6) 55%)",
                 animation: `finalBubble ${2400 + index * 30}ms ease-out ${index * 40}ms forwards`,
               }}
             />
