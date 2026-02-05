@@ -41,8 +41,11 @@ export default function HomePage() {
   useEffect(() => {
     const loadWishes = async () => {
       try {
-        const response = await fetch("/wishes.txt");
-        if (!response.ok) return;
+        const response = await fetch("./wishes.txt");
+        if (!response.ok) {
+          console.error("Wishes file not found. Expected ./wishes.txt in the deployed folder.");
+          return;
+        }
         const text = await response.text();
         const lines = text.split("\n");
         const parsed: Array<{ author: string; message: string }> = [];
