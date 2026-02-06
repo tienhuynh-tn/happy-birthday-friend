@@ -30,13 +30,106 @@ export default function HomePage() {
   const prefersReducedMotion = usePrefersReducedMotion();
   const [showFinalFx, setShowFinalFx] = useState(false);
   const [hasPlayedFinalFx, setHasPlayedFinalFx] = useState(false);
-  const [stopMainMusicSignal, setStopMainMusicSignal] = useState(0);
-  const [finalAudioNonce, setFinalAudioNonce] = useState(0);
+  const [musicEnabled, setMusicEnabled] = useState(false);
+  const [audioUnlocked, setAudioUnlocked] = useState(false);
+  const mainAudioRef = useRef<HTMLAudioElement | null>(null);
+  const finalAudioRef = useRef<HTMLAudioElement | null>(null);
 
   // Celebrate on first load.
   useEffect(() => {
     confettiRef.current?.burst();
   }, []);
+
+  useEffect(() => {
+    try {
+      const raw = window.localStorage.getItem("musicEnabled");
+      if (raw === "true") {
+        setMusicEnabled(true);
+      }
+    } catch {
+      // ignore
+    }
+  }, []);
+
+  useEffect(() => {
+    try {
+      window.localStorage.setItem("musicEnabled", String(musicEnabled));
+    } catch {
+      // ignore
+    }
+  }, [musicEnabled]);
+
+  useEffect(() => {
+    if (!mainAudioRef.current) {
+      const audio = new Audio("./audio/main.mp3");
+      audio.loop = true;
+      audio.preload = "auto";
+      mainAudioRef.current = audio;
+    }
+    if (!finalAudioRef.current) {
+      const audio = new Audio("./audio/final.mp3");
+      audio.loop = true;
+      audio.preload = "auto";
+      finalAudioRef.current = audio;
+    }
+  }, []);
+
+  const safePlay = (audio: HTMLAudioElement | null) => {
+    if (!audio) return;
+    audio.play().catch(() => {
+      // autoplay may be blocked
+    });
+  };
+
+  const playFinalFrom10 = () => {
+    const audio = finalAudioRef.current;
+    if (!audio) return;
+    const start = () => {
+      try {
+        audio.currentTime = 10;
+      } catch {
+        // ignore
+      }
+      safePlay(audio);
+    };
+    if (audio.readyState >= 1) {
+      start();
+      return;
+    }
+    const onLoaded = () => {
+      audio.removeEventListener("loadedmetadata", onLoaded);
+      start();
+    };
+    audio.addEventListener("loadedmetadata", onLoaded);
+    audio.load();
+  };
+
+  const stopFinal = () => {
+    const audio = finalAudioRef.current;
+    if (!audio) return;
+    audio.pause();
+    try {
+      audio.currentTime = 0;
+    } catch {
+      // ignore
+    }
+  };
+
+  useEffect(() => {
+    const isFinalOpen = activeNote?.id === "wish-final";
+    if (!audioUnlocked || !musicEnabled) {
+      mainAudioRef.current?.pause();
+      stopFinal();
+      return;
+    }
+    if (isFinalOpen) {
+      mainAudioRef.current?.pause();
+      playFinalFrom10();
+    } else {
+      stopFinal();
+      safePlay(mainAudioRef.current);
+    }
+  }, [activeNote?.id, audioUnlocked, musicEnabled]);
 
   useEffect(() => {
     const loadWishes = async () => {
@@ -138,8 +231,7 @@ export default function HomePage() {
       window.setTimeout(() => setShowFinalFx(false), 3000);
     }
     if (note.id === "wish-final") {
-      setStopMainMusicSignal((prev) => prev + 1);
-      setFinalAudioNonce((prev) => prev + 1);
+      // switching to final track is handled by audio manager effect
     }
   };
 
@@ -181,7 +273,22 @@ export default function HomePage() {
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-ink/70">Memory Jar</p>
           <h1 className="text-3xl font-semibold sm:text-4xl">Happy Birthday, bro 🎂</h1>
           <div className="flex flex-wrap items-center justify-center gap-3">
-            <AudioToggle stopSignal={stopMainMusicSignal} />
+            <AudioToggle
+              playing={musicEnabled}
+              onToggle={() => {
+                if (!audioUnlocked) {
+                  setAudioUnlocked(true);
+                  if (!musicEnabled) {
+                    setMusicEnabled(true);
+                  } else {
+                    // user wants playback but it was blocked previously
+                    setMusicEnabled(true);
+                  }
+                  return;
+                }
+                setMusicEnabled((prev) => !prev);
+              }}
+            />
             <button
               type="button"
               onClick={pickRandomNote}
@@ -233,7 +340,6 @@ export default function HomePage() {
           title={activeNote.author}
           onClose={() => {
             setActiveNote(null);
-            setFinalAudioNonce((prev) => (activeNote?.id === "wish-final" ? prev + 1 : prev));
           }}
         >
           <div>
@@ -243,16 +349,6 @@ export default function HomePage() {
             <p className="text-base leading-relaxed whitespace-pre-line">{activeNote.message}</p>
           </div>
         </Modal>
-      )}
-
-      {activeNote?.id === "wish-final" && (
-        <iframe
-          key={`final-audio-${finalAudioNonce}`}
-          src="https://www.youtube.com/embed/S7KA4tQ483o?start=10&controls=0&autoplay=1&mute=0"
-          title="Final wish audio"
-          allow="autoplay; encrypted-media; picture-in-picture"
-          className="fixed -left-[9999px] top-0 h-[1px] w-[1px] opacity-0 pointer-events-none"
-        />
       )}
 
       {showFinalFx && (
