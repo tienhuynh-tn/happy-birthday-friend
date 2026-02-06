@@ -34,6 +34,18 @@ export default function HomePage() {
   const [audioUnlocked, setAudioUnlocked] = useState(false);
   const mainAudioRef = useRef<HTMLAudioElement | null>(null);
   const finalAudioRef = useRef<HTMLAudioElement | null>(null);
+  const mainSrcSetRef = useRef(false);
+  const finalSrcSetRef = useRef(false);
+  const wasPlayingBeforeFinalRef = useRef(false);
+  const basePath = useMemo(() => {
+    if (typeof window === "undefined") return "";
+    const parts = window.location.pathname.split("/").filter(Boolean);
+    const idx = parts.indexOf("memory-jar");
+    if (idx >= 0) {
+      return "/" + parts.slice(0, idx + 1).join("/");
+    }
+    return "";
+  }, []);
 
   // Celebrate on first load.
   useEffect(() => {
@@ -59,20 +71,32 @@ export default function HomePage() {
     }
   }, [musicEnabled]);
 
-  useEffect(() => {
+  const ensureAudio = () => {
     if (!mainAudioRef.current) {
-      const audio = new Audio("./audio/main.mp3");
+      const audio = new Audio();
       audio.loop = true;
-      audio.preload = "auto";
+      audio.preload = "none";
       mainAudioRef.current = audio;
     }
     if (!finalAudioRef.current) {
-      const audio = new Audio("./audio/final.mp3");
+      const audio = new Audio();
       audio.loop = true;
-      audio.preload = "auto";
+      audio.preload = "none";
       finalAudioRef.current = audio;
     }
-  }, []);
+  };
+
+  const ensureMainSrc = () => {
+    if (!mainAudioRef.current || mainSrcSetRef.current) return;
+    mainAudioRef.current.src = `${basePath || "."}/audio/main.mp3`;
+    mainSrcSetRef.current = true;
+  };
+
+  const ensureFinalSrc = () => {
+    if (!finalAudioRef.current || finalSrcSetRef.current) return;
+    finalAudioRef.current.src = `${basePath || "."}/audio/final.mp3`;
+    finalSrcSetRef.current = true;
+  };
 
   const safePlay = (audio: HTMLAudioElement | null) => {
     if (!audio) return;
@@ -134,7 +158,7 @@ export default function HomePage() {
   useEffect(() => {
     const loadWishes = async () => {
       try {
-        const response = await fetch("./wishes.txt");
+        const response = await fetch(`${basePath || "."}/wishes.txt`);
         if (!response.ok) {
           console.error("Wishes file not found. Expected ./wishes.txt in the deployed folder.");
           return;
@@ -231,7 +255,19 @@ export default function HomePage() {
       window.setTimeout(() => setShowFinalFx(false), 3000);
     }
     if (note.id === "wish-final") {
-      // switching to final track is handled by audio manager effect
+      if (audioUnlocked && musicEnabled) {
+        ensureAudio();
+        ensureFinalSrc();
+        wasPlayingBeforeFinalRef.current = Boolean(
+          mainAudioRef.current && !mainAudioRef.current.paused
+        );
+        mainAudioRef.current?.pause();
+        playFinalFrom10();
+      }
+    } else if (audioUnlocked && musicEnabled) {
+      ensureAudio();
+      ensureMainSrc();
+      safePlay(mainAudioRef.current);
     }
   };
 
@@ -276,17 +312,33 @@ export default function HomePage() {
             <AudioToggle
               playing={musicEnabled}
               onToggle={() => {
+                ensureAudio();
                 if (!audioUnlocked) {
                   setAudioUnlocked(true);
-                  if (!musicEnabled) {
-                    setMusicEnabled(true);
+                  setMusicEnabled(true);
+                  if (activeNote?.id === "wish-final") {
+                    ensureFinalSrc();
+                    playFinalFrom10();
                   } else {
-                    // user wants playback but it was blocked previously
-                    setMusicEnabled(true);
+                    ensureMainSrc();
+                    safePlay(mainAudioRef.current);
                   }
                   return;
                 }
-                setMusicEnabled((prev) => !prev);
+                if (musicEnabled) {
+                  mainAudioRef.current?.pause();
+                  stopFinal();
+                  setMusicEnabled(false);
+                } else {
+                  setMusicEnabled(true);
+                  if (activeNote?.id === "wish-final") {
+                    ensureFinalSrc();
+                    playFinalFrom10();
+                  } else {
+                    ensureMainSrc();
+                    safePlay(mainAudioRef.current);
+                  }
+                }
               }}
             />
             <button
@@ -340,6 +392,14 @@ export default function HomePage() {
           title={activeNote.author}
           onClose={() => {
             setActiveNote(null);
+            if (activeNote?.id === "wish-final") {
+              stopFinal();
+              if (audioUnlocked && musicEnabled && wasPlayingBeforeFinalRef.current) {
+                ensureAudio();
+                ensureMainSrc();
+                safePlay(mainAudioRef.current);
+              }
+            }
           }}
         >
           <div>
