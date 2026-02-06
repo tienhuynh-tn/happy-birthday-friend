@@ -1,11 +1,10 @@
+const isProd = process.env.NODE_ENV === "production";
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: "export",
-  images: { unoptimized: true },
-
-  // GitHub Pages repo + subfolder publish
-  basePath: "/happy-birthday-friend/memory-jar",
-  assetPrefix: "/happy-birthday-friend/memory-jar/",
+  basePath: isProd ? "/happy-birthday-friend/memory-jar" : "",
+  assetPrefix: isProd ? "/happy-birthday-friend/memory-jar/" : "",
 };
 
 export default nextConfig;
