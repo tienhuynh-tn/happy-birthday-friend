@@ -30,12 +30,15 @@ export default function HomePage() {
   const prefersReducedMotion = usePrefersReducedMotion();
   const [showFinalFx, setShowFinalFx] = useState(false);
   const [hasPlayedFinalFx, setHasPlayedFinalFx] = useState(false);
-  const [musicEnabled, setMusicEnabled] = useState(false);
+  const [isMainPlaying, setIsMainPlaying] = useState(false);
+  const [wantsMainPlaying, setWantsMainPlaying] = useState(false);
   const [audioUnlocked, setAudioUnlocked] = useState(false);
+  const [needsUserTap, setNeedsUserTap] = useState(false);
   const mainAudioRef = useRef<HTMLAudioElement | null>(null);
   const finalAudioRef = useRef<HTMLAudioElement | null>(null);
   const mainSrcSetRef = useRef(false);
   const finalSrcSetRef = useRef(false);
+  const audioUnlockedRef = useRef(false);
   const wasPlayingBeforeFinalRef = useRef(false);
   const basePath = useMemo(() => {
     if (typeof window === "undefined") return "";
@@ -56,7 +59,7 @@ export default function HomePage() {
     try {
       const raw = window.localStorage.getItem("musicEnabled");
       if (raw === "true") {
-        setMusicEnabled(true);
+        setWantsMainPlaying(true);
       }
     } catch {
       // ignore
@@ -65,23 +68,23 @@ export default function HomePage() {
 
   useEffect(() => {
     try {
-      window.localStorage.setItem("musicEnabled", String(musicEnabled));
+      window.localStorage.setItem("musicEnabled", String(wantsMainPlaying));
     } catch {
       // ignore
     }
-  }, [musicEnabled]);
+  }, [wantsMainPlaying]);
 
-  const ensureAudio = () => {
+  const ensureAudioEls = () => {
     if (!mainAudioRef.current) {
       const audio = new Audio();
       audio.loop = true;
-      audio.preload = "none";
+      audio.preload = "auto";
       mainAudioRef.current = audio;
     }
     if (!finalAudioRef.current) {
       const audio = new Audio();
       audio.loop = true;
-      audio.preload = "none";
+      audio.preload = "auto";
       finalAudioRef.current = audio;
     }
   };
@@ -98,61 +101,71 @@ export default function HomePage() {
     finalSrcSetRef.current = true;
   };
 
-  const safePlay = (audio: HTMLAudioElement | null) => {
-    if (!audio) return;
-    audio.play().catch(() => {
-      // autoplay may be blocked
+  const ensureSrc = () => {
+    ensureMainSrc();
+    ensureFinalSrc();
+  };
+
+  const unlockAudioGesture = async (): Promise<boolean> => {
+    ensureAudioEls();
+    ensureSrc();
+    if (audioUnlockedRef.current) return true;
+    try {
+      const a = mainAudioRef.current!;
+      const prevMuted = a.muted;
+      a.muted = true;
+      await a.play();
+      a.pause();
+      try {
+        a.currentTime = 0;
+      } catch {
+        // ignore
+      }
+      a.muted = prevMuted;
+      audioUnlockedRef.current = true;
+      setAudioUnlocked(true);
+      return true;
+    } catch {
+      setAudioUnlocked(false);
+      return false;
+    }
+  };
+
+  const ensureMetadataLoaded = (audio: HTMLAudioElement) =>
+    new Promise<void>((resolve) => {
+      if (audio.readyState >= 1) {
+        resolve();
+        return;
+      }
+      const onLoaded = () => {
+        audio.removeEventListener("loadedmetadata", onLoaded);
+        resolve();
+      };
+      audio.addEventListener("loadedmetadata", onLoaded);
+      window.setTimeout(() => {
+        audio.removeEventListener("loadedmetadata", onLoaded);
+        resolve();
+      }, 1200);
+      audio.load();
     });
-  };
 
-  const playFinalFrom10 = () => {
-    const audio = finalAudioRef.current;
-    if (!audio) return;
-    const start = () => {
+  const playFrom = async (audio: HTMLAudioElement, seconds: number): Promise<boolean> => {
+    try {
+      await audio.play();
+      await ensureMetadataLoaded(audio);
       try {
-        audio.currentTime = 10;
+        audio.currentTime = seconds;
       } catch {
         // ignore
       }
-      safePlay(audio);
-    };
-    if (audio.readyState >= 1) {
-      start();
-      return;
+      await audio.play();
+      return true;
+    } catch {
+      return false;
     }
-    const onLoaded = () => {
-      audio.removeEventListener("loadedmetadata", onLoaded);
-      start();
-    };
-    audio.addEventListener("loadedmetadata", onLoaded);
-    audio.load();
   };
 
-  const playMainFrom18 = () => {
-    const audio = mainAudioRef.current;
-    if (!audio) return;
-    const start = () => {
-      try {
-        audio.currentTime = 18;
-      } catch {
-        // ignore
-      }
-      safePlay(audio);
-    };
-    if (audio.readyState >= 1) {
-      start();
-      return;
-    }
-    const onLoaded = () => {
-      audio.removeEventListener("loadedmetadata", onLoaded);
-      start();
-    };
-    audio.addEventListener("loadedmetadata", onLoaded);
-    audio.load();
-  };
-
-  const stopFinal = () => {
-    const audio = finalAudioRef.current;
+  const stopAudio = (audio: HTMLAudioElement | null) => {
     if (!audio) return;
     audio.pause();
     try {
@@ -162,12 +175,49 @@ export default function HomePage() {
     }
   };
 
+  const startMain = async () => {
+    ensureAudioEls();
+    ensureMainSrc();
+    stopAudio(finalAudioRef.current);
+    const ok = await playFrom(mainAudioRef.current!, 18);
+    if (ok) {
+      setIsMainPlaying(true);
+      setNeedsUserTap(false);
+    } else {
+      setIsMainPlaying(false);
+      setNeedsUserTap(true);
+    }
+    return ok;
+  };
+
+  const pauseMain = () => {
+    mainAudioRef.current?.pause();
+    setIsMainPlaying(false);
+  };
+
+  const startFinal = async () => {
+    ensureAudioEls();
+    ensureFinalSrc();
+    mainAudioRef.current?.pause();
+    setIsMainPlaying(false);
+    const ok = await playFrom(finalAudioRef.current!, 10);
+    if (!ok) {
+      setNeedsUserTap(true);
+    }
+    return ok;
+  };
+
+  const stopFinal = () => {
+    stopAudio(finalAudioRef.current);
+  };
+
   useEffect(() => {
-    if (!audioUnlocked || !musicEnabled) {
+    if (!audioUnlocked || !wantsMainPlaying) {
       mainAudioRef.current?.pause();
       stopFinal();
+      setIsMainPlaying(false);
     }
-  }, [audioUnlocked, musicEnabled]);
+  }, [audioUnlocked, wantsMainPlaying]);
 
   useEffect(() => {
     const loadWishes = async () => {
@@ -254,7 +304,7 @@ export default function HomePage() {
     }
   }, [readIds]);
 
-  const openWish = (note: MemoryNote) => {
+  const openWish = async (note: MemoryNote) => {
     setReadIds((prev) => {
       if (prev.has(note.id)) return prev;
       const next = new Set(prev);
@@ -269,15 +319,15 @@ export default function HomePage() {
       window.setTimeout(() => setShowFinalFx(false), 3000);
     }
     if (note.id === "wish-final") {
-      if (audioUnlocked && musicEnabled) {
-        ensureAudio();
-        ensureFinalSrc();
-        wasPlayingBeforeFinalRef.current = Boolean(
-          mainAudioRef.current && !mainAudioRef.current.paused
-        );
-        mainAudioRef.current?.pause();
-        playFinalFrom10();
+      const unlocked = await unlockAudioGesture();
+      if (!unlocked) {
+        setNeedsUserTap(true);
+        return;
       }
+      wasPlayingBeforeFinalRef.current = Boolean(
+        mainAudioRef.current && !mainAudioRef.current.paused
+      );
+      await startFinal();
     }
   };
 
@@ -320,33 +370,22 @@ export default function HomePage() {
           <h1 className="text-3xl font-semibold sm:text-4xl">Happy Birthday, bro 🎂</h1>
           <div className="flex flex-wrap items-center justify-center gap-3">
             <AudioToggle
-              playing={musicEnabled}
-              onToggle={() => {
-                ensureAudio();
-                if (!audioUnlocked) {
-                  setAudioUnlocked(true);
-                  setMusicEnabled(true);
-                  if (activeNote?.id === "wish-final") {
-                    ensureFinalSrc();
-                    playFinalFrom10();
-                  } else {
-                    ensureMainSrc();
-                    playMainFrom18();
-                  }
+              playing={isMainPlaying}
+              onToggle={async () => {
+                const unlocked = await unlockAudioGesture();
+                if (!unlocked) {
+                  setNeedsUserTap(true);
                   return;
                 }
-                if (musicEnabled) {
-                  mainAudioRef.current?.pause();
-                  stopFinal();
-                  setMusicEnabled(false);
+                if (isMainPlaying) {
+                  pauseMain();
+                  setWantsMainPlaying(false);
                 } else {
-                  setMusicEnabled(true);
+                  setWantsMainPlaying(true);
                   if (activeNote?.id === "wish-final") {
-                    ensureFinalSrc();
-                    playFinalFrom10();
+                    await startFinal();
                   } else {
-                    ensureMainSrc();
-                    playMainFrom18();
+                    await startMain();
                   }
                 }
               }}
@@ -404,10 +443,10 @@ export default function HomePage() {
             setActiveNote(null);
             if (activeNote?.id === "wish-final") {
               stopFinal();
-              if (audioUnlocked && musicEnabled && wasPlayingBeforeFinalRef.current) {
-                ensureAudio();
-                ensureMainSrc();
-                playMainFrom18();
+              if (wantsMainPlaying) {
+                startMain();
+              } else {
+                pauseMain();
               }
             }
           }}
