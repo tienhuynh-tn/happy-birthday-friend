@@ -88,13 +88,13 @@ export default function HomePage() {
 
   const ensureMainSrc = () => {
     if (!mainAudioRef.current || mainSrcSetRef.current) return;
-    mainAudioRef.current.src = `${basePath || "."}/audio/main.mp3`;
+    mainAudioRef.current.src = `${basePath || ""}/audio/main.mp3`;
     mainSrcSetRef.current = true;
   };
 
   const ensureFinalSrc = () => {
     if (!finalAudioRef.current || finalSrcSetRef.current) return;
-    finalAudioRef.current.src = `${basePath || "."}/audio/final.mp3`;
+    finalAudioRef.current.src = `${basePath || ""}/audio/final.mp3`;
     finalSrcSetRef.current = true;
   };
 
@@ -128,6 +128,29 @@ export default function HomePage() {
     audio.load();
   };
 
+  const playMainFrom18 = () => {
+    const audio = mainAudioRef.current;
+    if (!audio) return;
+    const start = () => {
+      try {
+        audio.currentTime = 18;
+      } catch {
+        // ignore
+      }
+      safePlay(audio);
+    };
+    if (audio.readyState >= 1) {
+      start();
+      return;
+    }
+    const onLoaded = () => {
+      audio.removeEventListener("loadedmetadata", onLoaded);
+      start();
+    };
+    audio.addEventListener("loadedmetadata", onLoaded);
+    audio.load();
+  };
+
   const stopFinal = () => {
     const audio = finalAudioRef.current;
     if (!audio) return;
@@ -140,20 +163,11 @@ export default function HomePage() {
   };
 
   useEffect(() => {
-    const isFinalOpen = activeNote?.id === "wish-final";
     if (!audioUnlocked || !musicEnabled) {
       mainAudioRef.current?.pause();
       stopFinal();
-      return;
     }
-    if (isFinalOpen) {
-      mainAudioRef.current?.pause();
-      playFinalFrom10();
-    } else {
-      stopFinal();
-      safePlay(mainAudioRef.current);
-    }
-  }, [activeNote?.id, audioUnlocked, musicEnabled]);
+  }, [audioUnlocked, musicEnabled]);
 
   useEffect(() => {
     const loadWishes = async () => {
@@ -264,10 +278,6 @@ export default function HomePage() {
         mainAudioRef.current?.pause();
         playFinalFrom10();
       }
-    } else if (audioUnlocked && musicEnabled) {
-      ensureAudio();
-      ensureMainSrc();
-      safePlay(mainAudioRef.current);
     }
   };
 
@@ -321,7 +331,7 @@ export default function HomePage() {
                     playFinalFrom10();
                   } else {
                     ensureMainSrc();
-                    safePlay(mainAudioRef.current);
+                    playMainFrom18();
                   }
                   return;
                 }
@@ -336,7 +346,7 @@ export default function HomePage() {
                     playFinalFrom10();
                   } else {
                     ensureMainSrc();
-                    safePlay(mainAudioRef.current);
+                    playMainFrom18();
                   }
                 }
               }}
@@ -397,7 +407,7 @@ export default function HomePage() {
               if (audioUnlocked && musicEnabled && wasPlayingBeforeFinalRef.current) {
                 ensureAudio();
                 ensureMainSrc();
-                safePlay(mainAudioRef.current);
+                playMainFrom18();
               }
             }
           }}
