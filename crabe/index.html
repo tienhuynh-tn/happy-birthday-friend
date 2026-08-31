@@ -1,26 +1,51 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="icon" href="/logo-light.png" type="image/png">
-  <link rel="apple-touch-icon" href="/logo-light.png">
-  <meta name="msapplication-TileColor" content="#00aba9">
-  <meta name="theme-color" content="#ffffff">
+  <link rel="icon" href="./dist/logo-light.png" type="image/png">
+  <link rel="apple-touch-icon" href="./dist/logo-light.png">
+  <title>🦀 🎂</title>
+  <meta name="description" content="A birthday cake and candle celebration for Crabe.">
+  <style>
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      overflow: hidden;
+      background: radial-gradient(ellipse at top, #fff8ef 0%, #f7d8c8 52%, #d7b3a7 100%);
+    }
+
+    iframe {
+      display: block;
+      width: 100%;
+      height: 100%;
+      border: 0;
+      background: transparent;
+    }
+  </style>
   <script>
-    (function() {
-      const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
-      const setting = localStorage.getItem('vueuse-color-scheme') || 'auto'
-      if (setting === 'dark' || (prefersDark && setting !== 'light'))
-        document.documentElement.classList.toggle('dark', true)
-    })()
+    async function loadBirthdayCake() {
+      if ('serviceWorker' in navigator) {
+        const registrations = await navigator.serviceWorker.getRegistrations()
+        await Promise.all(registrations
+          .filter(registration => registration.scope.includes('/happy-birthday-friend/crabe/dist/'))
+          .map(registration => registration.unregister()))
+      }
+
+      if ('caches' in window) {
+        const keys = await caches.keys()
+        await Promise.all(keys
+          .filter(key => key.includes('workbox') || key.includes('precache'))
+          .map(key => caches.delete(key)))
+      }
+
+      document.querySelector('iframe').src = './dist/?v=crabe-root'
+    }
   </script>
 </head>
-
-<body>
-  <div id="app"></div>
-  <script type="module" src="/src/main.ts"></script>
+<body onload="loadBirthdayCake()">
+  <iframe title="Crabe birthday cake" aria-label="Crabe birthday cake"></iframe>
 </body>
-
 </html>
