@@ -7,6 +7,7 @@ This repo hosts a collection of birthday mini-sites and web gifts.
 
 ## Live Sites
 - https://tienhuynh-tn.github.io/happy-birthday-friend/bao-tram/
+- https://tienhuynh-tn.github.io/happy-birthday-friend/crabe/dist/
 - https://tienhuynh-tn.github.io/happy-birthday-friend/nhat-linh/
 - https://tienhuynh-tn.github.io/happy-birthday-friend/memory-jar/
 

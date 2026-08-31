@@ -1,0 +1,15 @@
+{
+  "name": "🦀 🎂",
+  "short_name": "🦀 🎂",
+  "icons": [
+    {
+      "src": "./logo-light.png",
+      "sizes": "2000x2000",
+      "type": "image/png"
+    }
+  ],
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#d7f0e7",
+  "theme_color": "#4c9b88"
+}

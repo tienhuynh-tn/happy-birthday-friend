@@ -1,0 +1,51 @@
+{
+  "vite/modulepreload-polyfill": [],
+  "node_modules/@intlify/shared/dist/shared.mjs": [],
+  "node_modules/@intlify/message-compiler/dist/message-compiler.esm-browser.js": [],
+  "node_modules/@intlify/core-base/dist/core-base.mjs": [],
+  "node_modules/@vue/shared/dist/shared.esm-bundler.js": [],
+  "node_modules/@vue/reactivity/dist/reactivity.esm-bundler.js": [],
+  "node_modules/@vue/runtime-core/dist/runtime-core.esm-bundler.js": [],
+  "node_modules/@vue/runtime-dom/dist/runtime-dom.esm-bundler.js": [],
+  "node_modules/vue-i18n/dist/vue-i18n.runtime.mjs": [],
+  "src/modules/i18n.ts": [],
+  "\u0000commonjsHelpers.js": [],
+  "\u0000/Users/tienhuynh-tn/Projects/happy-birthday-friend/crabe/node_modules/nprogress/nprogress.js?commonjs-module": [],
+  "node_modules/nprogress/nprogress.js": [],
+  "src/modules/nprogress.ts": [],
+  "node_modules/pinia/node_modules/vue-demi/lib/index.mjs": [],
+  "node_modules/pinia/dist/pinia.mjs": [],
+  "src/modules/pinia.ts": [],
+  "vite/preload-helper": [],
+  "src/modules/pwa.ts": [],
+  "node_modules/vue-router/dist/devtools-EWN81iOl.mjs": [],
+  "node_modules/vue-router/dist/vue-router.mjs": [],
+  "node_modules/@vueuse/head/dist/index.mjs": [],
+  "node_modules/vite-ssg/dist/chunks/state.mjs": [],
+  "node_modules/vite-ssg/dist/chunks/ClientOnly.mjs": [],
+  "node_modules/vite-ssg/dist/index.mjs": [],
+  "src/components/BirthdayCake.vue?vue&type=style&index=0&scoped=true&lang.scss": [],
+  "plugin-vue:export-helper": [],
+  "src/components/BirthdayCake.vue": [],
+  "src/pages/index.vue?vue&type=style&index=0&scoped=true&lang.scss": [],
+  "src/pages/index.vue": [],
+  "../../../../../@vite-plugin-pages/generated-pages?id=virtual:generated-pages": [],
+  "src/layouts/default.vue": [],
+  "../../../../../@vite-plugin-vue-layouts/generated-layouts": [],
+  "src/App.vue": [],
+  "src/styles/vars.scss": [],
+  "src/styles/index.scss": [],
+  "../../../../../__uno.css": [],
+  "src/main.ts": [],
+  "index.html": [],
+  "assets/app.f766d01a.js-unocss-hash.css": [],
+  "../../../../../@vite-plugin-pwa/virtual:pwa-register": [
+    "./assets/virtual_pwa-register.20732f46.js"
+  ],
+  "src/layouts/404.vue": [
+    "./assets/404.8bc65866.js"
+  ],
+  "node_modules/workbox-window/build/workbox-window.prod.es5.mjs": [
+    "./assets/workbox-window.prod.es5.fb541039.js"
+  ]
+}
