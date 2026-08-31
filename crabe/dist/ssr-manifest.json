@@ -38,12 +38,12 @@
   "../../../../../__uno.css": [],
   "src/main.ts": [],
   "index.html": [],
-  "assets/app.f766d01a.js-unocss-hash.css": [],
+  "assets/app.3d56687a.js-unocss-hash.css": [],
   "../../../../../@vite-plugin-pwa/virtual:pwa-register": [
-    "./assets/virtual_pwa-register.20732f46.js"
+    "./assets/virtual_pwa-register.a079b068.js"
   ],
   "src/layouts/404.vue": [
-    "./assets/404.8bc65866.js"
+    "./assets/404.d7c916df.js"
   ],
   "node_modules/workbox-window/build/workbox-window.prod.es5.mjs": [
     "./assets/workbox-window.prod.es5.fb541039.js"

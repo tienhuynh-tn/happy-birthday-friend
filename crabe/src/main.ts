@@ -11,9 +11,15 @@ import './styles/index.scss'
 import 'uno.css'
 
 const routes = setupLayouts(generatedRoutes)
+const routerBase = import.meta.env.PROD
+  ? '/happy-birthday-friend/crabe/dist/'
+  : '/'
 
 // https://github.com/antfu/vite-ssg
-export const createApp = ViteSSG(App, { routes }, (ctx) => {
+export const createApp = ViteSSG(App, {
+  routes,
+  base: routerBase,
+}, (ctx) => {
   // install all modules under `modules/`
   Object.values(import.meta.globEager('./modules/*.ts')).map(i =>
     i.install?.(ctx),
