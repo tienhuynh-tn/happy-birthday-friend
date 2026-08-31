@@ -1,6 +1,12 @@
+<script setup lang="ts">
+defineProps<{
+  flameOut?: boolean
+}>()
+</script>
+
 <template>
   <div class="birthday">
-    <div class="velas">
+    <div class="velas" :class="{ 'velas--out': flameOut }">
       <div class="fuego" />
       <div class="fuego" />
       <div class="fuego" />
@@ -303,6 +309,8 @@
   margin-left: -3.7px;
   width: 6.66666667px;
   height: 18px;
+  transform-origin: 50% 100%;
+  transition: opacity 320ms ease, transform 320ms ease;
 }
 .fuego:nth-child(1) {
   animation: fuego 2s 5.9s infinite;
@@ -320,6 +328,10 @@
   animation: fuego 0.2s 5.9s infinite;
 }
 
+.velas--out .fuego {
+  animation: flame-out 360ms ease forwards;
+}
+
 // Animation Fire
 
 @keyframes fuego {
@@ -333,6 +345,13 @@
     background: rgba(255, 50, 0, 0.1);
     box-shadow: 0 0 40px 20px rgba(248, 233, 209, 0.2);
     transform: translateY(-20px) scale(0);
+  }
+}
+
+@keyframes flame-out {
+  to {
+    opacity: 0;
+    transform: translateY(10px) scale(0);
   }
 }
 
@@ -362,6 +381,12 @@
     animation: none;
     opacity: 1;
     transform: none;
+  }
+
+  .velas--out .fuego {
+    animation: none;
+    opacity: 0;
+    transform: scale(0);
   }
 }
 </style>

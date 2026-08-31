@@ -11,6 +11,7 @@
   "src/components/BirthdayCake.vue?vue&type=style&index=0&scoped=true&lang.scss": [],
   "plugin-vue:export-helper": [],
   "src/components/BirthdayCake.vue": [],
+  "src/composables/useBlowToExtinguish.ts": [],
   "src/App.vue?vue&type=style&index=0&scoped=true&lang.scss": [],
   "src/App.vue": [],
   "src/styles/vars.scss": [],
@@ -18,5 +19,5 @@
   "../../../../../__uno.css": [],
   "src/main.ts": [],
   "index.html": [],
-  "assets/app.9f79ea3d.js-unocss-hash.css": []
+  "assets/app.842a594c.js-unocss-hash.css": []
 }
