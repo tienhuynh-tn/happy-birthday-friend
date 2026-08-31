@@ -1,12 +1,19 @@
 <script setup lang="ts">
-defineProps<{
+const props = withDefaults(defineProps<{
+  cakeColor?: string
+  candleColor?: string
+  creamColor?: string
   flameOut?: boolean
-}>()
+}>(), {
+  cakeColor: '#8fcfbd',
+  candleColor: '#fbfff8',
+  creamColor: '#fff4d6',
+})
 </script>
 
 <template>
   <div class="birthday">
-    <div class="velas" :class="{ 'velas--out': flameOut }">
+    <div class="velas" :class="{ 'velas--out': props.flameOut }">
       <div class="fuego" />
       <div class="fuego" />
       <div class="fuego" />
@@ -26,7 +33,7 @@ defineProps<{
       xml:space="preserve"
     >
       <path
-        fill="#8fcfbd"
+        :fill="props.cakeColor"
         d="M173.667-13.94c-49.298,0-102.782,0-147.334,0c-3.999,0-4-16.002,0-16.002
       c44.697,0,96.586,0,147.334,0C177.667-29.942,177.668-13.94,173.667-13.94z"
       >
@@ -52,7 +59,7 @@ defineProps<{
         />
       </path>
       <path
-        fill="#4f9f8b"
+        :fill="props.creamColor"
         d="M100-178.521c1.858,0,3.364,1.506,3.364,3.363c0,0,0,33.17,0,44.227
       c0,19.144,0,57.431,0,76.574c0,10.152,0,40.607,0,40.607c0,1.858-1.506,3.364-3.364,3.364l0,0c-1.858,0-3.364-1.506-3.364-3.364c0,0,0-30.455,0-40.607c0-19.144,0-57.432,0-76.575c0-11.057,0-44.226,0-44.226C96.636-177.015,98.142-178.521,100-178.521
       L100-178.521z"
@@ -87,7 +94,7 @@ defineProps<{
         />
       </path>
       <path
-        fill="#8fcfbd"
+        :fill="props.cakeColor"
         d="M173.667-15.929c-46.512,0-105.486,0-147.334,0c-3.999,0-4-16.002,0-16.002
       c43.566,0,97.96,0,147.334,0C177.667-31.931,177.666-15.929,173.667-15.929z"
       >
@@ -115,7 +122,7 @@ defineProps<{
         />
       </path>
       <path
-        fill="#4f9f8b"
+        :fill="props.creamColor"
         d="M101.368-73.685c0,12.164,0,15.18,0,28.519c0,22.702,0-13.661,0,8.304c0,14.48,0,18.233,0,30.512
       c0,1.753-2.958,1.847-2.958,0c0-12.68,0-16.277,0-30.401c0-21.983,0,11.66,0-8.305c0-13.027,0-15.992,0-28.628
       C98.411-75.883,101.368-75.592,101.368-73.685z"
@@ -148,7 +155,7 @@ defineProps<{
         />
       </path>
       <path
-        fill="#8fcfbd"
+        :fill="props.cakeColor"
         d="M173.667,21.571c-33.174,0-111.467,0-147.334,0c-4,0-4-16.002,0-16.002c39.836,0,105.982,0,147.334,0
       C177.668,5.569,177.667,21.571,173.667,21.571z"
       >
@@ -185,7 +192,7 @@ defineProps<{
         />
       </path>
       <path
-        fill="#fff4d6"
+        :fill="props.creamColor"
         d="M104.812,113.216c0,3.119-2.164,5.67-4.812,5.67c-2.646,0-4.812-2.551-4.812-5.67c0-5.594,0-16.782,0-22.375
     c0-5.143,0-15.427,0-20.568c0-7.333,0-21.998,0-29.33c0-5.523,0-16.569,0-22.092c0-3.295,0-9.885,0-13.181
     C95.188,2.551,97.353,0,100,0c2.648,0,4.812,2.551,4.812,5.669c0,3.248,0,9.743,0,12.991c0,5.428,0,16.284,0,21.711
@@ -242,7 +249,7 @@ defineProps<{
                             "
         />
       </path>
-      <rect x="10" y="475.571" fill="#fff4d6" width="180" height="4" />
+      <rect x="10" y="475.571" :fill="props.creamColor" width="180" height="4" />
     </svg>
   </div>
 </template>
@@ -268,7 +275,7 @@ defineProps<{
 // Candle
 
 .velas {
-  background: #fbfff8;
+  background: v-bind('props.candleColor');
   border-radius: 10px;
   position: absolute;
   top: 370px;
@@ -283,7 +290,7 @@ defineProps<{
 
   &:after,
   &:before {
-    background: rgba(76, 155, 136, 0.45);
+    background: v-bind('props.creamColor');
     content: "";
     position: absolute;
     width: 100%;

@@ -12,8 +12,8 @@
   "license": "MIT",
   "repository": "https://github.com/YunYouJun/birthday",
   "scripts": {
-    "build": "cross-env NODE_ENV=production vite-ssg build",
-    "dev": "vite --port 3333 --open --host",
+    "build": "node scripts/build.mjs",
+    "dev": "vite --port 3333 --open /app.html --host",
     "lint": "eslint .",
     "preview": "vite preview",
     "preview-https": "serve dist",

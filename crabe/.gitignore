@@ -29,4 +29,8 @@ pnpm-debug.log*
 .vite-ssg-dist
 .vite-ssg-temp
 dist
+!/dist/
+!/dist/assets/
+!/dist/assets/app.*.css
+!/dist/assets/app.*.js
 dist-ssr
