@@ -31,6 +31,7 @@ type PasscodeStatus = 'idle' | 'checking' | 'error' | 'success'
 type IntroStep = 'greeting' | 'countdown' | 'message' | 'done'
 
 const PASSCODE = '1509'
+const BIRTHDAY_MUSIC_SRC = './audio/song-1.mp3'
 const keypadNumbers = ['1', '2', '3', '4', '5', '6', '7', '8', '9']
 const introCountdownNumbers = [3, 2, 1]
 const introMessages: IntroMessage[] = [
@@ -130,6 +131,7 @@ const flameOut = ref(false)
 const showCookingPanel = ref(false)
 const showPasscodeHint = ref(false)
 const isUnlocked = ref(false)
+const isMusicPlaying = ref(false)
 const introStep = ref<IntroStep>('greeting')
 const introMessageIndex = ref(0)
 const enteredPasscode = ref('')
@@ -139,6 +141,7 @@ const catLook = reactive({
   x: '0px',
   y: '0px',
 })
+const birthdayMusicRef = ref<HTMLAudioElement | null>(null)
 const passcodeHintButtonRef = ref<HTMLButtonElement | null>(null)
 const passcodeHintRef = ref<HTMLElement | null>(null)
 let catReactionTimer: ReturnType<typeof setTimeout> | undefined
@@ -153,6 +156,9 @@ const isIntroComplete = computed(() => introStep.value === 'done')
 const activeIntroMessage = computed(() => introMessageSlides[introMessageIndex.value])
 const cookingToggleLabel = computed(() =>
   showCookingPanel.value ? 'Đóng trạm làm bánh' : 'Mở trạm làm bánh',
+)
+const musicToggleLabel = computed(() =>
+  isMusicPlaying.value ? 'Tắt nhạc sinh nhật' : 'Bật nhạc sinh nhật',
 )
 const passcodeLabel = computed(() => `Đã nhập ${enteredPasscode.value.length}/4 số mật mã`)
 const isPasscodeLocked = computed(() =>
@@ -222,6 +228,40 @@ const resetCatLook = () => {
   catLook.y = '0px'
 }
 
+const playBirthdayMusic = async () => {
+  const audio = birthdayMusicRef.value
+  if (!audio)
+    return
+
+  audio.loop = true
+
+  try {
+    await audio.play()
+    isMusicPlaying.value = true
+  }
+  catch {
+    isMusicPlaying.value = false
+  }
+}
+
+const pauseBirthdayMusic = () => {
+  const audio = birthdayMusicRef.value
+  if (!audio)
+    return
+
+  audio.pause()
+  isMusicPlaying.value = false
+}
+
+const toggleBirthdayMusic = () => {
+  if (isMusicPlaying.value) {
+    pauseBirthdayMusic()
+    return
+  }
+
+  playBirthdayMusic()
+}
+
 const setCatReaction = (reaction: CatReaction, duration = 180, resetLook = false) => {
   clearCatReactionTimer()
   catReaction.value = 'idle'
@@ -261,6 +301,7 @@ const validatePasscode = (value: string) => {
   if (value === PASSCODE) {
     passcodeStatus.value = 'success'
     setCatReaction('success', 700)
+    playBirthdayMusic()
     passcodeTimer = setTimeout(() => {
       isUnlocked.value = true
     }, 2400)
@@ -284,6 +325,9 @@ const enterPasscodeDigit = (digit: string) => {
   passcodeStatus.value = 'idle'
   setCatLookForDigit(digit)
   setCatReaction(getDigitReaction(nextValue.length), 210, nextValue.length < 4)
+
+  if (nextValue === PASSCODE)
+    playBirthdayMusic()
 
   if (nextValue.length === 4) {
     passcodeStatus.value = 'checking'
@@ -441,6 +485,7 @@ onBeforeUnmount(() => {
   clearCatReactionTimer()
   clearPasscodeTimer()
   clearIntroTimer()
+  pauseBirthdayMusic()
 })
 
 // https://github.com/vueuse/head
@@ -454,6 +499,38 @@ useHead({
 
 <template>
   <main class="birthday-shell text-center text-gray-700 dark:text-gray-200">
+    <audio
+      ref="birthdayMusicRef"
+      class="birthday-music"
+      :src="BIRTHDAY_MUSIC_SRC"
+      loop
+      preload="auto"
+      @play="isMusicPlaying = true"
+      @pause="isMusicPlaying = false"
+      @ended="isMusicPlaying = false"
+      @error="isMusicPlaying = false"
+    />
+
+    <button
+      v-if="isUnlocked"
+      class="music-toggle"
+      type="button"
+      :class="{ 'music-toggle--playing': isMusicPlaying }"
+      :aria-label="musicToggleLabel"
+      :aria-pressed="isMusicPlaying"
+      @click="toggleBirthdayMusic"
+    >
+      <svg
+        class="music-toggle__icon"
+        viewBox="0 0 24 24"
+        aria-hidden="true"
+      >
+        <path d="M9 18V5l10-2v13" />
+        <path d="M9 18c0 1.7-1.6 3-3.5 3S2 19.7 2 18s1.6-3 3.5-3S9 16.3 9 18Z" />
+        <path d="M19 16c0 1.7-1.6 3-3.5 3S12 17.7 12 16s1.6-3 3.5-3 3.5 1.3 3.5 3Z" />
+      </svg>
+    </button>
+
     <section
       v-if="!isUnlocked"
       class="passcode-screen"
@@ -916,6 +993,54 @@ useHead({
   min-height: 100vh;
   min-height: 100svh;
   overflow: hidden;
+}
+
+.birthday-music {
+  display: none;
+}
+
+.music-toggle {
+  position: fixed;
+  z-index: 10;
+  top: 14px;
+  right: 14px;
+  display: grid;
+  width: 42px;
+  height: 42px;
+  padding: 0;
+  border: 1px solid rgba(79, 159, 139, 0.24);
+  border-radius: 50%;
+  background: rgba(255, 250, 243, 0.78);
+  box-shadow: 0 12px 28px rgba(121, 82, 67, 0.14);
+  color: rgba(49, 84, 72, 0.68);
+  cursor: pointer;
+  place-items: center;
+  backdrop-filter: blur(12px);
+  transition: background 180ms ease, color 180ms ease, transform 180ms ease;
+}
+
+.music-toggle:active {
+  transform: translateY(1px) scale(0.97);
+}
+
+.music-toggle:focus-visible {
+  outline: 3px solid rgba(79, 159, 139, 0.34);
+  outline-offset: 2px;
+}
+
+.music-toggle--playing {
+  background: rgba(79, 159, 139, 0.16);
+  color: #315448;
+}
+
+.music-toggle__icon {
+  width: 21px;
+  height: 21px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
 .birthday-intro {
