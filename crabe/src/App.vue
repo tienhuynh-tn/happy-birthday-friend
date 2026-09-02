@@ -169,7 +169,7 @@ const passcodeMessage = computed(() => {
     return 'Mật mã sai rồi, hãy thử lại, khó quá thì hỏi Coder nha 😉'
 
   if (passcodeStatus.value === 'success')
-    return 'Xin chào, Crabe 🦀'
+    return 'Mật mã đúng, tiến tiếp thôi'
 
   return ''
 })
