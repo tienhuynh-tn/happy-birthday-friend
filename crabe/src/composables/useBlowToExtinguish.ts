@@ -95,7 +95,7 @@ export function useBlowToExtinguish(options: UseBlowToExtinguishOptions) {
   const startListening = async () => {
     if (!hasMicrophoneApi()) {
       status.value = 'unsupported'
-      errorMessage.value = 'Microphone is not available here.'
+      errorMessage.value = 'Micro không khả dụng ở đây.'
       return
     }
 
@@ -116,7 +116,7 @@ export function useBlowToExtinguish(options: UseBlowToExtinguishOptions) {
       const AudioContextConstructor = window.AudioContext || (window as WindowWithWebkitAudio).webkitAudioContext
       if (!AudioContextConstructor) {
         status.value = 'unsupported'
-        errorMessage.value = 'Use the button below to blow out the candle.'
+        errorMessage.value = 'Hãy dùng nút bên dưới để thổi tắt nến.'
         await stopListening()
         return
       }
@@ -140,7 +140,7 @@ export function useBlowToExtinguish(options: UseBlowToExtinguishOptions) {
       status.value = name === 'NotAllowedError' || name === 'PermissionDeniedError'
         ? 'denied'
         : 'unsupported'
-      errorMessage.value = 'Use the button below to blow out the candle.'
+      errorMessage.value = 'Hãy dùng nút bên dưới để thổi tắt nến.'
     }
   }
 

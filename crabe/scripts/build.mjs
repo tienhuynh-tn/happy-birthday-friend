@@ -9,12 +9,12 @@ const indexPath = join(root, 'index.html')
 const viteSsgBin = join(root, 'node_modules/.bin/vite-ssg')
 
 const appTemplate = `<!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>🦀 🎂</title>
-  <meta name="description" content="A birthday cake and candle celebration for Crabe.">
+  <meta name="description" content="Bánh sinh nhật và nến dành cho Crabe.">
 </head>
 <body>
   <div id="app"></div>

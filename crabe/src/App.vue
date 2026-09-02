@@ -24,38 +24,38 @@ const keypadNumbers = ['1', '2', '3', '4', '5', '6', '7', '8', '9']
 const cookingSteps: CookingStep[] = [
   {
     id: 'cakeColor',
-    label: 'Cake batter',
-    action: 'Mix batter',
-    customLabel: 'Custom batter',
+    label: 'Bột bánh',
+    action: 'Trộn bột bánh',
+    customLabel: 'Màu bột tùy chỉnh',
     options: [
-      { label: 'Mint', value: '#8fcfbd' },
-      { label: 'Berry', value: '#ef9faf' },
-      { label: 'Honey', value: '#f3c86b' },
-      { label: 'Cocoa', value: '#b77b5f' },
+      { label: 'Bạc hà', value: '#8fcfbd' },
+      { label: 'Dâu', value: '#ef9faf' },
+      { label: 'Mật ong', value: '#f3c86b' },
+      { label: 'Cacao', value: '#b77b5f' },
     ],
   },
   {
     id: 'creamColor',
-    label: 'Cream swirl',
-    action: 'Add cream',
-    customLabel: 'Custom cream',
+    label: 'Lớp kem',
+    action: 'Thêm kem',
+    customLabel: 'Màu kem tùy chỉnh',
     options: [
-      { label: 'Vanilla', value: '#fff4d6' },
-      { label: 'Peach', value: '#ffd2bd' },
-      { label: 'Blueberry', value: '#b9c7f6' },
-      { label: 'Pistachio', value: '#d7ecc8' },
+      { label: 'Vani', value: '#fff4d6' },
+      { label: 'Đào', value: '#ffd2bd' },
+      { label: 'Việt quất', value: '#b9c7f6' },
+      { label: 'Hạt dẻ cười', value: '#d7ecc8' },
     ],
   },
   {
     id: 'candleColor',
-    label: 'Candle',
-    action: 'Place candle',
-    customLabel: 'Custom candle',
+    label: 'Nến',
+    action: 'Cắm nến',
+    customLabel: 'Màu nến tùy chỉnh',
     options: [
-      { label: 'Sugar', value: '#fbfff8' },
-      { label: 'Coral', value: '#ff9c8a' },
-      { label: 'Sky', value: '#a7d8f0' },
-      { label: 'Lilac', value: '#d6c2ff' },
+      { label: 'Đường trắng', value: '#fbfff8' },
+      { label: 'San hô', value: '#ff9c8a' },
+      { label: 'Trời xanh', value: '#a7d8f0' },
+      { label: 'Tím hoa cà', value: '#d6c2ff' },
     ],
   },
 ]
@@ -70,6 +70,7 @@ const currentStepIndex = ref(0)
 const cakeBaked = ref(false)
 const flameOut = ref(false)
 const showCookingPanel = ref(false)
+const showPasscodeHint = ref(false)
 const isUnlocked = ref(false)
 const enteredPasscode = ref('')
 const passcodeStatus = ref<PasscodeStatus>('idle')
@@ -78,6 +79,8 @@ const catLook = reactive({
   x: '0px',
   y: '0px',
 })
+const passcodeHintButtonRef = ref<HTMLButtonElement | null>(null)
+const passcodeHintRef = ref<HTMLElement | null>(null)
 let catReactionTimer: ReturnType<typeof setTimeout> | undefined
 let catReactionFrame: ReturnType<typeof requestAnimationFrame> | undefined
 let passcodeTimer: ReturnType<typeof setTimeout> | undefined
@@ -86,20 +89,20 @@ const activeStep = computed(() => cookingSteps[currentStepIndex.value])
 const isFirstStep = computed(() => currentStepIndex.value === 0)
 const isLastStep = computed(() => currentStepIndex.value === cookingSteps.length - 1)
 const cookingToggleLabel = computed(() =>
-  showCookingPanel.value ? 'Close cake cooking station' : 'Open cake cooking station',
+  showCookingPanel.value ? 'Đóng trạm làm bánh' : 'Mở trạm làm bánh',
 )
-const passcodeLabel = computed(() => `Passcode ${enteredPasscode.value.length} of 4 digits entered`)
+const passcodeLabel = computed(() => `Đã nhập ${enteredPasscode.value.length}/4 số mật mã`)
 const isPasscodeLocked = computed(() =>
   passcodeStatus.value === 'checking' || passcodeStatus.value === 'success',
 )
 const passcodeMessage = computed(() => {
   if (passcodeStatus.value === 'error')
-    return 'Try again.'
+    return 'Mật mã sai rồi, hãy thử lại, khó quá thì hỏi Coder nha 😉'
 
   if (passcodeStatus.value === 'success')
-    return 'Welcome, Crabe.'
+    return 'Xin chào, Crabe 🦀'
 
-  return 'Enter the little code.'
+  return ''
 })
 const catLookStyle = computed(() => ({
   '--cat-eye-x': catLook.x,
@@ -160,7 +163,7 @@ const validatePasscode = (value: string) => {
     setCatReaction('success', 700)
     passcodeTimer = setTimeout(() => {
       isUnlocked.value = true
-    }, 640)
+    }, 2400)
     return
   }
 
@@ -169,7 +172,7 @@ const validatePasscode = (value: string) => {
   passcodeTimer = setTimeout(() => {
     enteredPasscode.value = ''
     passcodeStatus.value = 'idle'
-  }, 860)
+  }, 3200)
 }
 
 const enterPasscodeDigit = (digit: string) => {
@@ -282,26 +285,44 @@ const {
 
 const micHint = computed(() => {
   if (flameOut.value)
-    return 'The candle is out.'
+    return 'Nến đã tắt.'
 
   if (micStatus.value === 'requesting')
-    return 'Allow microphone access to blow out the candle.'
+    return 'Hãy cho phép dùng micro để thổi tắt nến.'
 
   if (micStatus.value === 'listening')
-    return 'Blow into the microphone.'
+    return 'Thổi vào micro nha.'
 
   if (hasFallback.value)
     return errorMessage.value
 
-  return 'Allow microphone, then blow to put out the candle.'
+  return 'Cho phép dùng micro, rồi thổi để tắt nến.'
 })
+
+const handlePasscodeOutsidePointerDown = (event: PointerEvent) => {
+  if (!showPasscodeHint.value)
+    return
+
+  const target = event.target
+  if (!(target instanceof Node)) {
+    showPasscodeHint.value = false
+    return
+  }
+
+  if (passcodeHintButtonRef.value?.contains(target) || passcodeHintRef.value?.contains(target))
+    return
+
+  showPasscodeHint.value = false
+}
 
 onMounted(() => {
   window.addEventListener('keydown', handlePasscodeKeydown)
+  document.addEventListener('pointerdown', handlePasscodeOutsidePointerDown)
 })
 
 onBeforeUnmount(() => {
   window.removeEventListener('keydown', handlePasscodeKeydown)
+  document.removeEventListener('pointerdown', handlePasscodeOutsidePointerDown)
   clearCatReactionTimer()
   clearPasscodeTimer()
 })
@@ -311,7 +332,7 @@ onBeforeUnmount(() => {
 // they will be rendered correctly in the html results with vite-ssg
 useHead({
   title: '🦀 🎂',
-  meta: [{ name: 'description', content: 'A birthday cake and candle celebration for Crabe.' }],
+  meta: [{ name: 'description', content: 'Bánh sinh nhật và nến dành cho Crabe.' }],
 })
 </script>
 
@@ -486,10 +507,50 @@ useHead({
           />
         </svg>
         <div class="passcode-header">
-          <p id="passcode-title">
-            Crabe only
+          <p>
+            CHỈ DÀNH CHO BẠN
           </p>
-          <h1>Secret cake code</h1>
+          <button
+            ref="passcodeHintButtonRef"
+            class="passcode-hint-button"
+            type="button"
+            aria-label="Xem gợi ý mật mã"
+            aria-controls="passcode-hint"
+            :aria-expanded="showPasscodeHint"
+            @click="showPasscodeHint = !showPasscodeHint"
+          >
+            <svg
+              class="passcode-hint-icon"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+            >
+              <path d="M9 21h6" />
+              <path d="M10 17h4" />
+              <path d="M8.4 14.4A6 6 0 1 1 15.6 14.4c-.8.7-1.1 1.4-1.1 2.1h-5c0-.7-.3-1.4-1.1-2.1Z" />
+              <path d="M12 3v2" />
+            </svg>
+          </button>
+          <h1 id="passcode-title">
+            Hãy nhập mật mã
+          </h1>
+          <div
+            v-if="showPasscodeHint"
+            ref="passcodeHintRef"
+            id="passcode-hint"
+            class="passcode-hint-popover"
+            role="dialog"
+            aria-label="Gợi ý mật mã"
+          >
+            <button
+              class="passcode-hint-close"
+              type="button"
+              aria-label="Đóng gợi ý mật mã"
+              @click="showPasscodeHint = false"
+            >
+              x
+            </button>
+            <p>Mật mã chính là một ngày đặc biệt của bạn trong năm</p>
+          </div>
         </div>
 
         <div
@@ -514,7 +575,7 @@ useHead({
           {{ passcodeMessage }}
         </p>
 
-        <div class="passcode-keypad" aria-label="Passcode keypad">
+        <div class="passcode-keypad" aria-label="Bàn phím mật mã">
           <button
             v-for="digit in keypadNumbers"
             :key="digit"
@@ -537,7 +598,7 @@ useHead({
           <button
             class="keypad-button keypad-button--backspace"
             type="button"
-            aria-label="Delete last digit"
+            aria-label="Xóa số vừa nhập"
             :disabled="isPasscodeLocked || enteredPasscode.length === 0"
             @click="deletePasscodeDigit"
           >
@@ -547,7 +608,7 @@ useHead({
       </div>
     </section>
 
-    <div v-else class="cake-stage" role="img" aria-label="Birthday cake with candle">
+    <div v-else class="cake-stage" role="img" aria-label="Bánh sinh nhật có nến">
       <BirthdayCake
         :cake-color="selectedColors.cakeColor"
         :cream-color="selectedColors.creamColor"
@@ -572,14 +633,14 @@ useHead({
       v-if="isUnlocked && !cakeBaked && showCookingPanel"
       id="cake-cooking-station"
       class="chef-station"
-      aria-label="Cake cooking station"
+      aria-label="Trạm làm bánh"
     >
       <div class="station-header">
-        <p>Step {{ currentStepIndex + 1 }} of {{ cookingSteps.length }}</p>
+        <p>Bước {{ currentStepIndex + 1 }}/{{ cookingSteps.length }}</p>
         <h1>{{ activeStep.action }}</h1>
       </div>
 
-      <div class="step-tabs" aria-label="Cooking steps">
+      <div class="step-tabs" aria-label="Các bước làm bánh">
         <button
           v-for="(step, index) in cookingSteps"
           :key="step.id"
@@ -625,14 +686,14 @@ useHead({
           :disabled="isFirstStep"
           @click="goBack"
         >
-          Back
+          Quay lại
         </button>
         <button
           class="station-button"
           type="button"
           @click="goNext"
         >
-          {{ isLastStep ? 'Bake cake' : 'Next' }}
+          {{ isLastStep ? 'Hoàn tất bánh' : 'Tiếp' }}
         </button>
       </div>
     </section>
@@ -650,7 +711,7 @@ useHead({
         :disabled="micStatus === 'requesting' || micStatus === 'listening'"
         @click="startListening"
       >
-        {{ micStatus === 'listening' ? 'Listening' : 'Use microphone' }}
+        {{ micStatus === 'listening' ? 'Đang nghe' : 'Dùng micro' }}
       </button>
       <button
         v-else
@@ -658,7 +719,7 @@ useHead({
         type="button"
         @click="extinguishFlame"
       >
-        Blow candle
+        Thổi nến
       </button>
     </div>
   </main>
@@ -699,6 +760,7 @@ useHead({
 }
 
 .passcode-panel {
+  position: relative;
   width: min(330px, 100%);
   padding: 18px 16px 16px;
   border: 1px solid rgba(79, 159, 139, 0.22);
@@ -728,6 +790,92 @@ useHead({
   color: #315448;
   font-size: 25px;
   line-height: 1.08;
+}
+
+.passcode-hint-button {
+  display: grid;
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: 1px solid rgba(79, 159, 139, 0.3);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.58);
+  box-shadow: 0 6px 14px rgba(121, 82, 67, 0.12);
+  color: #315448;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 900;
+  line-height: 1;
+  cursor: pointer;
+  place-items: center;
+}
+
+.passcode-hint-icon {
+  width: 17px;
+  height: 17px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.passcode-hint-button:focus-visible {
+  outline: 3px solid rgba(79, 159, 139, 0.34);
+  outline-offset: 2px;
+}
+
+.passcode-hint-popover {
+  position: absolute;
+  z-index: 5;
+  top: 48px;
+  right: 12px;
+  width: min(238px, calc(100% - 24px));
+  padding: 12px 34px 12px 12px;
+  box-sizing: border-box;
+  border: 1px solid rgba(79, 159, 139, 0.22);
+  border-radius: 14px;
+  background: rgba(255, 250, 243, 0.96);
+  box-shadow: 0 14px 30px rgba(121, 82, 67, 0.18);
+  color: rgba(57, 83, 75, 0.78);
+  text-align: left;
+  backdrop-filter: blur(12px);
+}
+
+.passcode-hint-popover p {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.42;
+  text-transform: none;
+}
+
+.passcode-hint-close {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: grid;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(79, 159, 139, 0.12);
+  color: #315448;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 900;
+  line-height: 1;
+  cursor: pointer;
+  place-items: center;
+}
+
+.passcode-hint-close:focus-visible {
+  outline: 3px solid rgba(79, 159, 139, 0.34);
+  outline-offset: 2px;
 }
 
 .passcode-dots {

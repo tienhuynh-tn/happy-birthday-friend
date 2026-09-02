@@ -1,5 +1,5 @@
 <template>
-  <div class="cake-stage" role="img" aria-label="Birthday cake with candle">
+  <div class="cake-stage" role="img" aria-label="Bánh sinh nhật có nến">
     <BirthdayCake />
   </div>
 </template>
