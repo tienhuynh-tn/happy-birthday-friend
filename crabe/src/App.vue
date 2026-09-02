@@ -27,6 +27,7 @@ type IntroStep = 'greeting' | 'countdown' | 'message' | 'done'
 
 const PASSCODE = '1509'
 const BIRTHDAY_NAME = 'Mai Chi'
+const GREETING_DURATION = 14000
 const BIRTHDAY_MUSIC_SRC = './audio/song-1.mp3'
 const keypadNumbers = ['1', '2', '3', '4', '5', '6', '7', '8', '9']
 const introCountdownNumbers = [3, 2, 1]
@@ -219,9 +220,9 @@ const queueNextIntroMessage = () => {
 }
 
 const startIntroSequence = () => {
-  introStep.value = 'greeting'
+  introStep.value = 'countdown'
   introMessageIndex.value = 0
-  queueIntroStep('countdown', 4400)
+  queueIntroStep('greeting', 4200)
 }
 
 const resetCatLook = () => {
@@ -462,7 +463,12 @@ watch(isUnlocked, (unlocked) => {
 
 watch(introStep, (step) => {
   if (step === 'countdown') {
-    queueIntroStep('message', 4400)
+    queueIntroStep('greeting', 4200)
+    return
+  }
+
+  if (step === 'greeting') {
+    queueIntroStep('message', GREETING_DURATION)
     return
   }
 
@@ -826,7 +832,7 @@ useHead({
             v-for="(number, index) in introCountdownNumbers"
             :key="number"
             class="intro-count"
-            :style="{ '--count-delay': `${index * 850}ms` }"
+            :style="{ '--count-delay': `${index * 1000}ms` }"
           >
             {{ number }}
           </span>
@@ -1078,7 +1084,7 @@ useHead({
 
 .intro-greeting-sentence {
   opacity: 0;
-  animation: intro-sentence 1100ms cubic-bezier(0.2, 0.78, 0.24, 1) both;
+  animation: intro-sentence 1400ms cubic-bezier(0.2, 0.78, 0.24, 1) both;
 }
 
 .intro-greeting-sentence:nth-child(1) {
@@ -1086,11 +1092,11 @@ useHead({
 }
 
 .intro-greeting-sentence:nth-child(2) {
-  animation-delay: 950ms;
+  animation-delay: 2200ms;
 }
 
 .intro-greeting-sentence:nth-child(3) {
-  animation-delay: 1900ms;
+  animation-delay: 4400ms;
 }
 
 .intro-countdown {
@@ -1114,14 +1120,14 @@ useHead({
 .intro-count {
   opacity: 0;
   font-size: clamp(78px, 26vw, 126px);
-  animation: intro-count 820ms var(--count-delay) cubic-bezier(0.18, 0.78, 0.22, 1) both;
+  animation: intro-count 900ms var(--count-delay) cubic-bezier(0.18, 0.78, 0.22, 1) both;
 }
 
 .intro-ready {
   opacity: 0;
   color: #315448;
   font-size: clamp(34px, 11vw, 52px);
-  animation: intro-ready 720ms 2550ms cubic-bezier(0.18, 0.78, 0.22, 1) both;
+  animation: intro-ready 720ms 3000ms cubic-bezier(0.18, 0.78, 0.22, 1) both;
 }
 
 .intro-message {
