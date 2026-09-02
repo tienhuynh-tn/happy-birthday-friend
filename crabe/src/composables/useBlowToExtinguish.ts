@@ -10,6 +10,9 @@ interface WindowWithWebkitAudio extends Window {
   webkitAudioContext?: typeof AudioContext
 }
 
+const BLOW_RMS_THRESHOLD = 0.1
+const BLOW_HOLD_MS = 170
+
 export function useBlowToExtinguish(options: UseBlowToExtinguishOptions) {
   const status = ref<BlowStatus>('idle')
   const errorMessage = ref('')
@@ -72,9 +75,9 @@ export function useBlowToExtinguish(options: UseBlowToExtinguishOptions) {
       const rms = Math.sqrt(total / samples.length)
       const now = performance.now()
 
-      if (rms > 0.16) {
+      if (rms > BLOW_RMS_THRESHOLD) {
         loudSince ||= now
-        if (now - loudSince > 260) {
+        if (now - loudSince > BLOW_HOLD_MS) {
           handleBlow().catch(() => undefined)
           return
         }
