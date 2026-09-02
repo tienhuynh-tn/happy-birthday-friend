@@ -847,7 +847,10 @@ useHead({
         v-else
         :key="activeIntroMessage.text"
         class="intro-card intro-card--message"
-        :class="`intro-card--${activeIntroMessage.variant}`"
+        :class="[
+          `intro-card--${activeIntroMessage.variant}`,
+          `intro-card--message-${introMessageIndex}`,
+        ]"
       >
         <p v-if="activeIntroMessage.label" class="intro-message-label">
           {{ activeIntroMessage.label }}
@@ -1139,6 +1142,11 @@ useHead({
   overflow-wrap: normal;
   word-break: normal;
   animation: intro-sentence 1100ms cubic-bezier(0.2, 0.78, 0.24, 1) both;
+}
+
+.intro-card--message-0 .intro-message {
+  max-width: 340px;
+  font-size: clamp(23px, 7.2vw, 34px);
 }
 
 .intro-message-label {
