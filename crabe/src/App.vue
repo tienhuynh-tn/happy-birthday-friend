@@ -21,63 +21,64 @@ interface IntroMessage {
   variant?: 'default' | 'emphasis' | 'quote'
 }
 
-interface IntroWord {
-  startIndex: number
-  text: string
-}
-
 type CatReaction = 'idle' | 'ear-left' | 'ear-right' | 'paw-left' | 'paw-right' | 'look-left' | 'look-right' | 'wrong' | 'success'
 type PasscodeStatus = 'idle' | 'checking' | 'error' | 'success'
 type IntroStep = 'greeting' | 'countdown' | 'message' | 'done'
 
 const PASSCODE = '1509'
+const BIRTHDAY_NAME = 'Mai Chi'
 const BIRTHDAY_MUSIC_SRC = './audio/song-1.mp3'
 const keypadNumbers = ['1', '2', '3', '4', '5', '6', '7', '8', '9']
 const introCountdownNumbers = [3, 2, 1]
 const introMessages: IntroMessage[] = [
   {
-    text: 'Hôm nay là sinh nhật của bạn đó!',
+    text: 'Hôm nay là sinh nhật bạn đó!! :D',
   },
   {
-    text: 'Chúc bạn một tuổi mới thật nhiều niềm vui, yêu thương và những điều dịu dàng.',
+    text: 'Chúc mừng sinh nhật bạn nha!! Chúc bạn có một năm thật tuyệt vời, đầy ắp niềm vui, tình yêu và hạnh phúc bất tận!',
   },
   {
-    text: 'Ban đầu mình chỉ định gửi một lời chúc đơn giản.',
+    text: 'Đó là điều mình đã định làm.',
   },
   {
     text: 'Nhưng rồi mình dừng lại một chút.',
   },
   {
-    text: 'Vì mình muốn chuẩn bị điều gì đó đặc biệt hơn.',
+    text: 'Mình nhận ra, mình muốn làm điều gì đó thật đặc biệt.',
   },
   {
     text: 'Bởi vì,',
   },
   {
-    text: 'Bạn rất đặc biệt :)',
+    text: 'Bạn thật đặc biệt :)',
     variant: 'emphasis',
   },
   {
-    label: 'Một lời nhắn nhỏ',
-    text: 'Càng biết trân trọng và ăn mừng cuộc sống, mình càng tìm thấy nhiều điều đáng để ăn mừng.',
+    label: 'Oprah Winfrey',
+    text: 'Càng khen ngợi và ăn mừng cuộc sống của mình, cuộc sống càng có thêm nhiều điều để ăn mừng.',
     variant: 'quote',
+  },
+  {
+    text: 'Chúc mừng sinh nhật!',
+    variant: 'emphasis',
+  },
+  {
+    text: 'Mong js.prototypes luôn ở bên bạn! ;)',
+  },
+  {
+    text: 'Được rồi, giờ hãy quay lại và nói mình biết bạn có thích nó không.',
+  },
+  {
+    text: 'Hoặc bấm vào nếu bạn muốn xem lại lần nữa.',
   },
   {
     text: 'Một chiếc bánh nhỏ đang chờ bạn tự tay hoàn tất.',
   },
 ]
 
-const buildIntroWords = (message: string): IntroWord[] => message.split(' ').map((word, index, words) => {
-  const startIndex = words.slice(0, index).join(' ').length + (index > 0 ? 1 : 0)
-  return {
-    text: word,
-    startIndex,
-  }
-})
 const introMessageSlides = introMessages.map(message => ({
   ...message,
   variant: message.variant || 'default',
-  words: buildIntroWords(message.text),
 }))
 
 const cookingSteps: CookingStep[] = [
@@ -169,7 +170,7 @@ const passcodeMessage = computed(() => {
     return 'Mật mã sai rồi, hãy thử lại, khó quá thì hỏi Coder nha 😉'
 
   if (passcodeStatus.value === 'success')
-    return 'Mật mã đúng, tiến tiếp thôi'
+    return 'Mật mã đúng rồi, tiến tiếp thôi :)))'
 
   return ''
 })
@@ -205,7 +206,7 @@ const queueIntroStep = (step: IntroStep, delay: number) => {
 
 const queueNextIntroMessage = () => {
   clearIntroTimer()
-  const duration = Math.max(3600, activeIntroMessage.value.text.length * 70 + 2100)
+  const duration = Math.max(5200, activeIntroMessage.value.text.length * 52 + 3000)
 
   introTimer = setTimeout(() => {
     if (introMessageIndex.value < introMessageSlides.length - 1) {
@@ -220,7 +221,7 @@ const queueNextIntroMessage = () => {
 const startIntroSequence = () => {
   introStep.value = 'greeting'
   introMessageIndex.value = 0
-  queueIntroStep('countdown', 3600)
+  queueIntroStep('countdown', 4400)
 }
 
 const resetCatLook = () => {
@@ -805,14 +806,18 @@ useHead({
       v-else-if="!isIntroComplete"
       class="birthday-intro"
       aria-live="polite"
-      aria-label="Lời chúc sinh nhật dành cho Crabe"
+      :aria-label="`Lời chúc sinh nhật dành cho ${BIRTHDAY_NAME}`"
     >
       <div v-if="introStep === 'greeting'" class="intro-card intro-card--greeting">
-        <p class="intro-kicker">
+        <p class="intro-kicker intro-greeting-sentence">
           Xin chào
         </p>
-        <h1>Crabe</h1>
-        <p>Hôm nay có một điều nhỏ xinh dành riêng cho bạn.</p>
+        <h1 class="intro-greeting-sentence">
+          {{ BIRTHDAY_NAME }}
+        </h1>
+        <p class="intro-greeting-sentence">
+          Hay gọi là Crabe, biệt danh mới mà tui đặt cho bạn. Dù gọi bằng tên nào, thì tui cũng đều thấy tên bạn rất đẹp nè, tui rất thích đó!
+        </p>
       </div>
 
       <div v-else-if="introStep === 'countdown'" class="intro-card intro-card--countdown">
@@ -842,27 +847,7 @@ useHead({
           {{ activeIntroMessage.label }}
         </p>
         <p class="intro-message" :aria-label="activeIntroMessage.text">
-          <span
-            v-for="(word, wordIndex) in activeIntroMessage.words"
-            :key="`${word.text}-${wordIndex}`"
-            class="intro-message-word"
-          >
-            <span
-              v-for="(char, charIndex) in word.text"
-              :key="`${char}-${charIndex}`"
-              :style="{ '--char-delay': `${(word.startIndex + charIndex) * 70}ms` }"
-              aria-hidden="true"
-            >
-              {{ char }}
-            </span>
-            <span
-              v-if="wordIndex < activeIntroMessage.words.length - 1"
-              :style="{ '--char-delay': `${(word.startIndex + word.text.length) * 70}ms` }"
-              aria-hidden="true"
-            >
-              &nbsp;
-            </span>
-          </span>
+          {{ activeIntroMessage.text }}
         </p>
       </div>
     </section>
@@ -1072,7 +1057,6 @@ useHead({
   font-weight: 800;
   letter-spacing: 0;
   text-transform: uppercase;
-  animation: intro-rise 560ms ease both;
 }
 
 .intro-card--greeting h1 {
@@ -1081,7 +1065,6 @@ useHead({
   font-size: clamp(52px, 16vw, 74px);
   font-weight: 900;
   line-height: 0.96;
-  animation: intro-pop 740ms 120ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
 }
 
 .intro-card--greeting p:last-child {
@@ -1091,7 +1074,23 @@ useHead({
   font-size: 17px;
   font-weight: 700;
   line-height: 1.42;
-  animation: intro-rise 560ms 520ms ease both;
+}
+
+.intro-greeting-sentence {
+  opacity: 0;
+  animation: intro-sentence 1100ms cubic-bezier(0.2, 0.78, 0.24, 1) both;
+}
+
+.intro-greeting-sentence:nth-child(1) {
+  animation-delay: 0ms;
+}
+
+.intro-greeting-sentence:nth-child(2) {
+  animation-delay: 950ms;
+}
+
+.intro-greeting-sentence:nth-child(3) {
+  animation-delay: 1900ms;
 }
 
 .intro-countdown {
@@ -1133,6 +1132,7 @@ useHead({
   line-height: 1.16;
   overflow-wrap: normal;
   word-break: normal;
+  animation: intro-sentence 1100ms cubic-bezier(0.2, 0.78, 0.24, 1) both;
 }
 
 .intro-message-label {
@@ -1158,18 +1158,6 @@ useHead({
   font-size: clamp(22px, 7vw, 32px);
   font-weight: 800;
   line-height: 1.24;
-}
-
-.intro-message-word {
-  display: inline-block;
-  white-space: nowrap;
-}
-
-.intro-message-word span {
-  display: inline-block;
-  opacity: 0;
-  transform: translateY(8px);
-  animation: intro-letter 360ms var(--char-delay) ease both;
 }
 
 .sr-only {
@@ -1257,10 +1245,21 @@ useHead({
   }
 }
 
-@keyframes intro-letter {
+@keyframes intro-sentence {
+  from {
+    opacity: 0;
+    filter: blur(8px);
+    transform: translateY(22px) scale(0.96);
+  }
+  65% {
+    opacity: 1;
+    filter: blur(0);
+    transform: translateY(-2px) scale(1.01);
+  }
   to {
     opacity: 1;
-    transform: translateY(0);
+    filter: blur(0);
+    transform: translateY(0) scale(1);
   }
 }
 
