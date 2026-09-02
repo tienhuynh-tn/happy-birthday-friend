@@ -15,11 +15,69 @@ interface CookingStep {
   options: IngredientOption[]
 }
 
+interface IntroMessage {
+  label?: string
+  text: string
+  variant?: 'default' | 'emphasis' | 'quote'
+}
+
+interface IntroWord {
+  startIndex: number
+  text: string
+}
+
 type CatReaction = 'idle' | 'ear-left' | 'ear-right' | 'paw-left' | 'paw-right' | 'look-left' | 'look-right' | 'wrong' | 'success'
 type PasscodeStatus = 'idle' | 'checking' | 'error' | 'success'
+type IntroStep = 'greeting' | 'countdown' | 'message' | 'done'
 
 const PASSCODE = '1509'
 const keypadNumbers = ['1', '2', '3', '4', '5', '6', '7', '8', '9']
+const introCountdownNumbers = [3, 2, 1]
+const introMessages: IntroMessage[] = [
+  {
+    text: 'Hôm nay là sinh nhật của bạn đó!',
+  },
+  {
+    text: 'Chúc bạn một tuổi mới thật nhiều niềm vui, yêu thương và những điều dịu dàng.',
+  },
+  {
+    text: 'Ban đầu mình chỉ định gửi một lời chúc đơn giản.',
+  },
+  {
+    text: 'Nhưng rồi mình dừng lại một chút.',
+  },
+  {
+    text: 'Vì mình muốn chuẩn bị điều gì đó đặc biệt hơn.',
+  },
+  {
+    text: 'Bởi vì,',
+  },
+  {
+    text: 'Bạn rất đặc biệt :)',
+    variant: 'emphasis',
+  },
+  {
+    label: 'Một lời nhắn nhỏ',
+    text: 'Càng biết trân trọng và ăn mừng cuộc sống, mình càng tìm thấy nhiều điều đáng để ăn mừng.',
+    variant: 'quote',
+  },
+  {
+    text: 'Một chiếc bánh nhỏ đang chờ bạn tự tay hoàn tất.',
+  },
+]
+
+const buildIntroWords = (message: string): IntroWord[] => message.split(' ').map((word, index, words) => {
+  const startIndex = words.slice(0, index).join(' ').length + (index > 0 ? 1 : 0)
+  return {
+    text: word,
+    startIndex,
+  }
+})
+const introMessageSlides = introMessages.map(message => ({
+  ...message,
+  variant: message.variant || 'default',
+  words: buildIntroWords(message.text),
+}))
 
 const cookingSteps: CookingStep[] = [
   {
@@ -72,6 +130,8 @@ const flameOut = ref(false)
 const showCookingPanel = ref(false)
 const showPasscodeHint = ref(false)
 const isUnlocked = ref(false)
+const introStep = ref<IntroStep>('greeting')
+const introMessageIndex = ref(0)
 const enteredPasscode = ref('')
 const passcodeStatus = ref<PasscodeStatus>('idle')
 const catReaction = ref<CatReaction>('idle')
@@ -84,10 +144,13 @@ const passcodeHintRef = ref<HTMLElement | null>(null)
 let catReactionTimer: ReturnType<typeof setTimeout> | undefined
 let catReactionFrame: ReturnType<typeof requestAnimationFrame> | undefined
 let passcodeTimer: ReturnType<typeof setTimeout> | undefined
+let introTimer: ReturnType<typeof setTimeout> | undefined
 
 const activeStep = computed(() => cookingSteps[currentStepIndex.value])
 const isFirstStep = computed(() => currentStepIndex.value === 0)
 const isLastStep = computed(() => currentStepIndex.value === cookingSteps.length - 1)
+const isIntroComplete = computed(() => introStep.value === 'done')
+const activeIntroMessage = computed(() => introMessageSlides[introMessageIndex.value])
 const cookingToggleLabel = computed(() =>
   showCookingPanel.value ? 'Đóng trạm làm bánh' : 'Mở trạm làm bánh',
 )
@@ -120,6 +183,43 @@ const clearCatReactionTimer = () => {
 const clearPasscodeTimer = () => {
   if (passcodeTimer)
     clearTimeout(passcodeTimer)
+}
+
+const clearIntroTimer = () => {
+  if (introTimer)
+    clearTimeout(introTimer)
+}
+
+const queueIntroStep = (step: IntroStep, delay: number) => {
+  clearIntroTimer()
+  introTimer = setTimeout(() => {
+    introStep.value = step
+  }, delay)
+}
+
+const queueNextIntroMessage = () => {
+  clearIntroTimer()
+  const duration = Math.max(3600, activeIntroMessage.value.text.length * 70 + 2100)
+
+  introTimer = setTimeout(() => {
+    if (introMessageIndex.value < introMessageSlides.length - 1) {
+      introMessageIndex.value += 1
+      return
+    }
+
+    introStep.value = 'done'
+  }, duration)
+}
+
+const startIntroSequence = () => {
+  introStep.value = 'greeting'
+  introMessageIndex.value = 0
+  queueIntroStep('countdown', 3600)
+}
+
+const resetCatLook = () => {
+  catLook.x = '0px'
+  catLook.y = '0px'
 }
 
 const setCatReaction = (reaction: CatReaction, duration = 180, resetLook = false) => {
@@ -238,11 +338,6 @@ const handlePasscodePointerMove = (event: PointerEvent) => {
   catLook.y = `${Math.max(-1.8, Math.min(2.4, y)).toFixed(2)}px`
 }
 
-const resetCatLook = () => {
-  catLook.x = '0px'
-  catLook.y = '0px'
-}
-
 const selectColor = (color: string) => {
   selectedColors[activeStep.value.id] = color
   if (flameOut.value)
@@ -315,6 +410,26 @@ const handlePasscodeOutsidePointerDown = (event: PointerEvent) => {
   showPasscodeHint.value = false
 }
 
+watch(isUnlocked, (unlocked) => {
+  if (unlocked)
+    startIntroSequence()
+})
+
+watch(introStep, (step) => {
+  if (step === 'countdown') {
+    queueIntroStep('message', 4400)
+    return
+  }
+
+  if (step === 'message')
+    queueNextIntroMessage()
+})
+
+watch(introMessageIndex, () => {
+  if (introStep.value === 'message')
+    queueNextIntroMessage()
+})
+
 onMounted(() => {
   window.addEventListener('keydown', handlePasscodeKeydown)
   document.addEventListener('pointerdown', handlePasscodeOutsidePointerDown)
@@ -325,6 +440,7 @@ onBeforeUnmount(() => {
   document.removeEventListener('pointerdown', handlePasscodeOutsidePointerDown)
   clearCatReactionTimer()
   clearPasscodeTimer()
+  clearIntroTimer()
 })
 
 // https://github.com/vueuse/head
@@ -535,8 +651,8 @@ useHead({
           </h1>
           <div
             v-if="showPasscodeHint"
-            ref="passcodeHintRef"
             id="passcode-hint"
+            ref="passcodeHintRef"
             class="passcode-hint-popover"
             role="dialog"
             aria-label="Gợi ý mật mã"
@@ -608,6 +724,72 @@ useHead({
       </div>
     </section>
 
+    <section
+      v-else-if="!isIntroComplete"
+      class="birthday-intro"
+      aria-live="polite"
+      aria-label="Lời chúc sinh nhật dành cho Crabe"
+    >
+      <div v-if="introStep === 'greeting'" class="intro-card intro-card--greeting">
+        <p class="intro-kicker">
+          Xin chào
+        </p>
+        <h1>Crabe</h1>
+        <p>Hôm nay có một điều nhỏ xinh dành riêng cho bạn.</p>
+      </div>
+
+      <div v-else-if="introStep === 'countdown'" class="intro-card intro-card--countdown">
+        <div class="intro-countdown" aria-hidden="true">
+          <span
+            v-for="(number, index) in introCountdownNumbers"
+            :key="number"
+            class="intro-count"
+            :style="{ '--count-delay': `${index * 850}ms` }"
+          >
+            {{ number }}
+          </span>
+          <span class="intro-ready">Sẵn sàng</span>
+        </div>
+        <p class="sr-only">
+          Đếm ngược 3, 2, 1.
+        </p>
+      </div>
+
+      <div
+        v-else
+        :key="activeIntroMessage.text"
+        class="intro-card intro-card--message"
+        :class="`intro-card--${activeIntroMessage.variant}`"
+      >
+        <p v-if="activeIntroMessage.label" class="intro-message-label">
+          {{ activeIntroMessage.label }}
+        </p>
+        <p class="intro-message" :aria-label="activeIntroMessage.text">
+          <span
+            v-for="(word, wordIndex) in activeIntroMessage.words"
+            :key="`${word.text}-${wordIndex}`"
+            class="intro-message-word"
+          >
+            <span
+              v-for="(char, charIndex) in word.text"
+              :key="`${char}-${charIndex}`"
+              :style="{ '--char-delay': `${(word.startIndex + charIndex) * 70}ms` }"
+              aria-hidden="true"
+            >
+              {{ char }}
+            </span>
+            <span
+              v-if="wordIndex < activeIntroMessage.words.length - 1"
+              :style="{ '--char-delay': `${(word.startIndex + word.text.length) * 70}ms` }"
+              aria-hidden="true"
+            >
+              &nbsp;
+            </span>
+          </span>
+        </p>
+      </div>
+    </section>
+
     <div v-else class="cake-stage" role="img" aria-label="Bánh sinh nhật có nến">
       <BirthdayCake
         :cake-color="selectedColors.cakeColor"
@@ -618,7 +800,7 @@ useHead({
     </div>
 
     <button
-      v-if="isUnlocked && !cakeBaked"
+      v-if="isUnlocked && isIntroComplete && !cakeBaked"
       class="cooking-toggle"
       type="button"
       :aria-label="cookingToggleLabel"
@@ -630,7 +812,7 @@ useHead({
     </button>
 
     <section
-      v-if="isUnlocked && !cakeBaked && showCookingPanel"
+      v-if="isUnlocked && isIntroComplete && !cakeBaked && showCookingPanel"
       id="cake-cooking-station"
       class="chef-station"
       aria-label="Trạm làm bánh"
@@ -699,7 +881,7 @@ useHead({
     </section>
 
     <div
-      v-if="isUnlocked && cakeBaked && !flameOut"
+      v-if="isUnlocked && isIntroComplete && cakeBaked && !flameOut"
       class="mic-tip"
       aria-live="polite"
     >
@@ -736,6 +918,147 @@ useHead({
   overflow: hidden;
 }
 
+.birthday-intro {
+  display: grid;
+  min-height: 100vh;
+  min-height: 100svh;
+  padding: 32px 20px;
+  box-sizing: border-box;
+  place-items: center;
+  overflow: hidden;
+  color: #315448;
+}
+
+.intro-card {
+  display: grid;
+  justify-items: center;
+  width: min(360px, 100%);
+  text-align: center;
+}
+
+.intro-card p,
+.intro-card h1 {
+  margin: 0;
+}
+
+.intro-kicker {
+  color: rgba(57, 83, 75, 0.58);
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0;
+  text-transform: uppercase;
+  animation: intro-rise 560ms ease both;
+}
+
+.intro-card--greeting h1 {
+  margin-top: 8px;
+  color: #4f9f8b;
+  font-size: clamp(52px, 16vw, 74px);
+  font-weight: 900;
+  line-height: 0.96;
+  animation: intro-pop 740ms 120ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.intro-card--greeting p:last-child {
+  max-width: 280px;
+  margin-top: 18px;
+  color: rgba(57, 83, 75, 0.76);
+  font-size: 17px;
+  font-weight: 700;
+  line-height: 1.42;
+  animation: intro-rise 560ms 520ms ease both;
+}
+
+.intro-countdown {
+  position: relative;
+  width: min(280px, 72vw);
+  height: 180px;
+}
+
+.intro-count,
+.intro-ready {
+  display: grid;
+  position: absolute;
+  inset: 0;
+  align-items: center;
+  justify-items: center;
+  color: #4f9f8b;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.intro-count {
+  opacity: 0;
+  font-size: clamp(78px, 26vw, 126px);
+  animation: intro-count 820ms var(--count-delay) cubic-bezier(0.18, 0.78, 0.22, 1) both;
+}
+
+.intro-ready {
+  opacity: 0;
+  color: #315448;
+  font-size: clamp(34px, 11vw, 52px);
+  animation: intro-ready 720ms 2550ms cubic-bezier(0.18, 0.78, 0.22, 1) both;
+}
+
+.intro-message {
+  max-width: 315px;
+  color: #315448;
+  font-size: clamp(26px, 8.5vw, 40px);
+  font-weight: 850;
+  line-height: 1.16;
+  overflow-wrap: normal;
+  word-break: normal;
+}
+
+.intro-message-label {
+  margin-bottom: 14px !important;
+  color: rgba(57, 83, 75, 0.58);
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0;
+  text-transform: uppercase;
+  animation: intro-rise 560ms ease both;
+}
+
+.intro-card--emphasis .intro-message {
+  max-width: 340px;
+  color: #4f9f8b;
+  font-size: clamp(38px, 12vw, 58px);
+  line-height: 1.02;
+}
+
+.intro-card--quote .intro-message {
+  max-width: 340px;
+  color: rgba(49, 84, 72, 0.9);
+  font-size: clamp(22px, 7vw, 32px);
+  font-weight: 800;
+  line-height: 1.24;
+}
+
+.intro-message-word {
+  display: inline-block;
+  white-space: nowrap;
+}
+
+.intro-message-word span {
+  display: inline-block;
+  opacity: 0;
+  transform: translateY(8px);
+  animation: intro-letter 360ms var(--char-delay) ease both;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 .cake-stage {
   display: grid;
   min-height: 100vh;
@@ -757,6 +1080,63 @@ useHead({
   padding: 32px 18px;
   box-sizing: border-box;
   overflow: hidden;
+}
+
+@keyframes intro-rise {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes intro-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.84) rotate(-3deg);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+@keyframes intro-count {
+  0% {
+    opacity: 0;
+    transform: scale(0.2) rotate(-24deg);
+  }
+  28%,
+  70% {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.8) rotate(12deg);
+  }
+}
+
+@keyframes intro-ready {
+  0% {
+    opacity: 0;
+    transform: scale(0.76);
+  }
+  45%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes intro-letter {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .passcode-panel {
