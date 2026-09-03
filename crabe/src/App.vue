@@ -36,44 +36,33 @@ const introMessages: IntroMessage[] = [
     text: 'Hôm nay là sinh nhật bạn đó!! :D',
   },
   {
-    text: 'Chúc mừng sinh nhật bạn nha!! Chúc bạn có một năm thật tuyệt vời, đầy ắp niềm vui, tình yêu và hạnh phúc bất tận!',
+    text: 'Chúc mừng sinh nhật bạn nha!! Chúc bạn có một tuổi mới thật tuyệt vời, đầy ắp niềm vui, thành công và hạnh phúc!',
   },
   {
-    text: 'Đó là điều mình đã định làm.',
+    text: 'Đó là những lời chúc tui định nhắn cho bạn.',
   },
   {
-    text: 'Nhưng rồi mình dừng lại một chút.',
+    text: 'Nhưng rồi tui dừng lại một chút...',
   },
   {
-    text: 'Mình nhận ra, mình muốn làm điều gì đó thật đặc biệt.',
+    text: 'Tui muốn làm điều gì đó, một điều thật khác và đặc biệt...',
   },
   {
     text: 'Bởi vì,',
   },
   {
-    text: 'Bạn thật đặc biệt :)',
+    text: 'Bạn là người đặc biệt :)',
     variant: 'emphasis',
-  },
-  {
-    label: 'Oprah Winfrey',
-    text: 'Càng khen ngợi và ăn mừng cuộc sống của mình, cuộc sống càng có thêm nhiều điều để ăn mừng.',
-    variant: 'quote',
   },
   {
     text: 'Chúc mừng sinh nhật!',
     variant: 'emphasis',
   },
   {
-    text: 'Mong js.prototypes luôn ở bên bạn! ;)',
+    text: 'Chưa hết, còn nhiều hoạt động ở phía trước nè!',
   },
   {
-    text: 'Được rồi, giờ hãy quay lại và nói mình biết bạn có thích nó không.',
-  },
-  {
-    text: 'Hoặc bấm vào nếu bạn muốn xem lại lần nữa.',
-  },
-  {
-    text: 'Một chiếc bánh nhỏ đang chờ bạn tự tay hoàn tất.',
+    text: 'Hãy cùng trang trí tiệc sinh nhật, trang trí một chiếc bánh nhỏ cho sinh nhật của bạn nè',
   },
 ]
 
