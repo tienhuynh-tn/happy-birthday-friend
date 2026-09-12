@@ -186,6 +186,40 @@ const decorationDropSpots: DecorationPoint[] = [
   { x: 83, y: 84 },
   { x: 50, y: 92 },
 ]
+const birthdayConfetti = [
+  { x: 4, delay: '-1800ms', duration: '3600ms', color: '#f06f8f', rotation: '-18deg', size: '9px' },
+  { x: 8, delay: '-900ms', duration: '4200ms', color: '#f3c86b', rotation: '24deg', size: '7px' },
+  { x: 12, delay: '-2600ms', duration: '3900ms', color: '#4f9f8b', rotation: '12deg', size: '10px' },
+  { x: 16, delay: '-1200ms', duration: '4500ms', color: '#9ecff2', rotation: '-32deg', size: '8px' },
+  { x: 20, delay: '-3100ms', duration: '4000ms', color: '#ffd2bd', rotation: '38deg', size: '9px' },
+  { x: 24, delay: '-500ms', duration: '4700ms', color: '#d6c2ff', rotation: '-8deg', size: '7px' },
+  { x: 28, delay: '-2100ms', duration: '3700ms', color: '#ef9faf', rotation: '18deg', size: '10px' },
+  { x: 32, delay: '-1400ms', duration: '4300ms', color: '#d7ecc8', rotation: '-26deg', size: '8px' },
+  { x: 36, delay: '-3400ms', duration: '4100ms', color: '#f6dd76', rotation: '34deg', size: '9px' },
+  { x: 40, delay: '-700ms', duration: '4600ms', color: '#81cbb8', rotation: '-16deg', size: '7px' },
+  { x: 44, delay: '-2900ms', duration: '3800ms', color: '#ff9c8a', rotation: '28deg', size: '10px' },
+  { x: 48, delay: '-1600ms', duration: '4400ms', color: '#b9c7f6', rotation: '-36deg', size: '8px' },
+  { x: 52, delay: '-2400ms', duration: '3950ms', color: '#fbfff8', rotation: '14deg', size: '9px' },
+  { x: 56, delay: '-300ms', duration: '4800ms', color: '#f06f8f', rotation: '-22deg', size: '7px' },
+  { x: 60, delay: '-3200ms', duration: '3650ms', color: '#4f9f8b', rotation: '30deg', size: '10px' },
+  { x: 64, delay: '-1100ms', duration: '4250ms', color: '#f3c86b', rotation: '-12deg', size: '8px' },
+  { x: 68, delay: '-2700ms', duration: '3750ms', color: '#ffd2bd', rotation: '42deg', size: '9px' },
+  { x: 72, delay: '-600ms', duration: '4550ms', color: '#d6c2ff', rotation: '-28deg', size: '7px' },
+  { x: 76, delay: '-2200ms', duration: '4050ms', color: '#ef9faf', rotation: '16deg', size: '10px' },
+  { x: 80, delay: '-1500ms', duration: '4350ms', color: '#d7ecc8', rotation: '-34deg', size: '8px' },
+  { x: 84, delay: '-3500ms', duration: '3850ms', color: '#f6dd76', rotation: '26deg', size: '9px' },
+  { x: 88, delay: '-800ms', duration: '4650ms', color: '#81cbb8', rotation: '-20deg', size: '7px' },
+  { x: 92, delay: '-3000ms', duration: '3700ms', color: '#ff9c8a', rotation: '36deg', size: '10px' },
+  { x: 96, delay: '-1700ms', duration: '4450ms', color: '#b9c7f6', rotation: '-14deg', size: '8px' },
+  { x: 2, delay: '-1000ms', duration: '5000ms', color: '#fbfff8', rotation: '22deg', size: '7px' },
+  { x: 14, delay: '-3900ms', duration: '5200ms', color: '#f06f8f', rotation: '-40deg', size: '8px' },
+  { x: 26, delay: '-2300ms', duration: '4900ms', color: '#4f9f8b', rotation: '44deg', size: '7px' },
+  { x: 38, delay: '-4100ms', duration: '5300ms', color: '#f3c86b', rotation: '-18deg', size: '9px' },
+  { x: 50, delay: '-1900ms', duration: '5100ms', color: '#d6c2ff', rotation: '32deg', size: '8px' },
+  { x: 62, delay: '-4300ms', duration: '5400ms', color: '#ff9c8a', rotation: '-24deg', size: '7px' },
+  { x: 74, delay: '-2500ms', duration: '5000ms', color: '#9ecff2', rotation: '40deg', size: '9px' },
+  { x: 90, delay: '-3700ms', duration: '5250ms', color: '#ef9faf', rotation: '-30deg', size: '8px' },
+]
 const cookingSteps: CookingStep[] = [
   {
     id: 'cakeColor',
@@ -234,12 +268,14 @@ const selectedColors = reactive({
 const currentStepIndex = ref(0)
 const cakeBaked = ref(false)
 const flameOut = ref(false)
+const micPermissionDeclined = ref(false)
 const showCookingPanel = ref(false)
 const showPasscodeHint = ref(false)
 const showDecorationGuide = ref(true)
 const showDecorationCollection = ref(false)
 const isUnlocked = ref(false)
 const isMusicPlaying = ref(false)
+const shouldPlayBirthdayMusic = ref(false)
 const currentBirthdayMusicIndex = ref(0)
 const decoratingConfirmed = ref(false)
 const selectedDecorationBackground = ref(decorationBackgrounds[0].id)
@@ -498,6 +534,8 @@ const removeDecoration = (decorationId: string) => {
 const confirmDecorations = () => {
   selectedPlacedDecorationId.value = null
   clearDecorationGuideTimer()
+  currentStepIndex.value = 0
+  showCookingPanel.value = true
   decoratingConfirmed.value = true
 }
 
@@ -558,6 +596,7 @@ const playBirthdayMusic = async () => {
   if (!audio)
     return
 
+  shouldPlayBirthdayMusic.value = true
   audio.loop = false
 
   try {
@@ -574,6 +613,7 @@ const pauseBirthdayMusic = () => {
   if (!audio)
     return
 
+  shouldPlayBirthdayMusic.value = false
   audio.pause()
   isMusicPlaying.value = false
 }
@@ -589,13 +629,17 @@ const toggleBirthdayMusic = () => {
 
 const playNextBirthdaySong = () => {
   const audio = birthdayMusicRef.value
-  if (!audio)
+  if (!audio || !shouldPlayBirthdayMusic.value)
     return
 
   currentBirthdayMusicIndex.value = (currentBirthdayMusicIndex.value + 1) % BIRTHDAY_MUSIC_PLAYLIST.length
   audio.src = activeBirthdayMusicSrc.value
   audio.currentTime = 0
-  playBirthdayMusic()
+  audio.load()
+  setTimeout(() => {
+    if (shouldPlayBirthdayMusic.value)
+      playBirthdayMusic()
+  }, 0)
 }
 
 const setCatReaction = (reaction: CatReaction, duration = 180, resetLook = false) => {
@@ -752,27 +796,49 @@ const extinguishFlame = () => {
 const {
   errorMessage,
   hasFallback,
+  resetListening,
   startListening,
   status: micStatus,
+  stopListening,
 } = useBlowToExtinguish({
   onBlow: extinguishFlame,
 })
 
+const showMicFallback = computed(() => micPermissionDeclined.value || hasFallback.value)
+
 const micHint = computed(() => {
   if (flameOut.value)
-    return 'Nến đã tắt.'
+    return 'Nến đã tắt. Nếu cần thì thổi lại nha.'
 
   if (micStatus.value === 'requesting')
     return 'Hãy cho phép dùng micro để thổi tắt nến.'
 
   if (micStatus.value === 'listening')
-    return 'Thổi vào micro nha.'
+    return 'Thổi vào micro nha. Phải thổi mạnh mới tắt được nến đó.'
 
-  if (hasFallback.value)
-    return errorMessage.value
+  if (showMicFallback.value)
+    return micPermissionDeclined.value ? 'Không dùng micro thì bấm Thổi nến để tắt nến.' : errorMessage.value
 
   return 'Cho phép dùng micro, rồi thổi để tắt nến.'
 })
+
+const allowMicrophone = () => {
+  flameOut.value = false
+  micPermissionDeclined.value = false
+  startListening()
+}
+
+const declineMicrophone = () => {
+  flameOut.value = false
+  micPermissionDeclined.value = true
+  stopListening().catch(() => undefined)
+}
+
+const resetCandleBlow = () => {
+  flameOut.value = false
+  micPermissionDeclined.value = false
+  resetListening().catch(() => undefined)
+}
 
 const handlePasscodeOutsidePointerDown = (event: PointerEvent) => {
   if (!showPasscodeHint.value)
@@ -1409,6 +1475,7 @@ useHead({
     <div
       v-else
       class="cake-stage"
+      :class="{ 'cake-stage--celebrating': flameOut }"
       :style="decorationLayerStyle"
       role="img"
       aria-label="Bánh sinh nhật có nến"
@@ -1435,6 +1502,21 @@ useHead({
           :flame-out="flameOut"
         />
       </div>
+      <div v-if="flameOut" class="birthday-confetti" aria-hidden="true">
+        <span
+          v-for="(piece, index) in birthdayConfetti"
+          :key="`${piece.x}-${index}`"
+          class="birthday-confetti__piece"
+          :style="{
+            '--confetti-x': `${piece.x}vw`,
+            '--confetti-delay': piece.delay,
+            '--confetti-duration': piece.duration,
+            '--confetti-color': piece.color,
+            '--confetti-rotation': piece.rotation,
+            '--confetti-size': piece.size,
+          }"
+        />
+      </div>
     </div>
 
     <button
@@ -1459,6 +1541,10 @@ useHead({
         <p>Bước {{ currentStepIndex + 1 }}/{{ cookingSteps.length }}</p>
         <h1>{{ activeStep.action }}</h1>
       </div>
+
+      <p class="station-description">
+        Chọn từng nguyên liệu cho chiếc bánh nha: màu bột, lớp kem và nến. Xong hết rồi bánh sẽ xuất hiện thật xinh trước khi mình thổi nến.
+      </p>
 
       <div class="step-tabs" aria-label="Các bước làm bánh">
         <button
@@ -1519,20 +1605,37 @@ useHead({
     </section>
 
     <div
-      v-if="isUnlocked && isIntroComplete && cakeBaked && !flameOut"
+      v-if="isUnlocked && isIntroComplete && cakeBaked"
       class="mic-tip"
+      :class="{ 'mic-tip--celebrating': flameOut }"
       aria-live="polite"
     >
       <p>{{ micHint }}</p>
-      <button
-        v-if="!hasFallback"
-        class="mic-tip__button"
-        type="button"
-        :disabled="micStatus === 'requesting' || micStatus === 'listening'"
-        @click="startListening"
-      >
-        {{ micStatus === 'listening' ? 'Đang nghe' : 'Dùng micro' }}
-      </button>
+      <div v-if="!showMicFallback || flameOut" class="mic-tip__actions">
+        <button
+          class="mic-tip__button"
+          type="button"
+          :disabled="micStatus === 'requesting' || micStatus === 'listening'"
+          @click="allowMicrophone"
+        >
+          {{ micStatus === 'listening' ? 'Đang nghe' : 'Cho phép' }}
+        </button>
+        <button
+          class="mic-tip__button mic-tip__button--secondary"
+          type="button"
+          :disabled="micStatus === 'requesting' || micStatus === 'listening'"
+          @click="declineMicrophone"
+        >
+          Không cho phép
+        </button>
+        <button
+          class="mic-tip__button mic-tip__button--secondary"
+          type="button"
+          @click="resetCandleBlow"
+        >
+          Thổi lại
+        </button>
+      </div>
       <button
         v-else
         class="mic-tip__button"
@@ -2412,6 +2515,25 @@ useHead({
   pointer-events: none;
 }
 
+.cake-stage--celebrating .cake-stage__cake-area {
+  animation: birthday-element-swing 2200ms ease-in-out infinite;
+}
+
+.cake-stage--celebrating .placed-decoration--static img {
+  transform-origin: 50% 12%;
+  animation: birthday-decoration-swing 1800ms ease-in-out infinite;
+}
+
+.cake-stage--celebrating .placed-decoration--static:nth-child(2n) img {
+  animation-delay: -600ms;
+  animation-duration: 2100ms;
+}
+
+.cake-stage--celebrating .placed-decoration--static:nth-child(3n) img {
+  animation-delay: -1100ms;
+  animation-duration: 2400ms;
+}
+
 .cake-stage__cake-area :deep(.birthday) {
   position: absolute;
   top: 50%;
@@ -2419,6 +2541,37 @@ useHead({
   z-index: 1;
   margin-top: -374px;
   margin-left: -100px;
+}
+
+.birthday-confetti {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.birthday-confetti__piece {
+  position: absolute;
+  top: -32px;
+  left: var(--confetti-x);
+  width: var(--confetti-size);
+  height: calc(var(--confetti-size) * 1.65);
+  border-radius: 2px;
+  background: var(--confetti-color);
+  box-shadow: 0 0 0 1px rgba(49, 84, 72, 0.05);
+  opacity: 0;
+  transform: translate3d(0, -24px, 0) rotate(var(--confetti-rotation));
+  animation: birthday-confetti-fall var(--confetti-duration) var(--confetti-delay) linear infinite;
+}
+
+.birthday-confetti__piece:nth-child(3n) {
+  border-radius: 50%;
+}
+
+.birthday-confetti__piece:nth-child(4n) {
+  width: calc(var(--confetti-size) * 1.7);
+  height: calc(var(--confetti-size) * 0.75);
 }
 
 .passcode-screen {
@@ -2480,6 +2633,55 @@ useHead({
   100% {
     opacity: 1;
     transform: scale(1);
+  }
+}
+
+@keyframes birthday-confetti-fall {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, -24px, 0) rotate(var(--confetti-rotation));
+  }
+  12% {
+    opacity: 1;
+  }
+  72% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translate3d(clamp(-42px, calc((50vw - var(--confetti-x)) * 0.16), 42px), 108vh, 0) rotate(calc(var(--confetti-rotation) + 520deg));
+  }
+}
+
+@keyframes birthday-element-swing {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) rotate(0deg);
+  }
+  25% {
+    transform: translate3d(-3px, 2px, 0) rotate(-2.2deg);
+  }
+  50% {
+    transform: translate3d(2px, -2px, 0) rotate(2deg);
+  }
+  75% {
+    transform: translate3d(-1px, 1px, 0) rotate(-1.1deg);
+  }
+}
+
+@keyframes birthday-decoration-swing {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) rotate(0deg) scale(1);
+  }
+  25% {
+    transform: translate3d(-2px, 2px, 0) rotate(-5deg) scale(1.02);
+  }
+  50% {
+    transform: translate3d(2px, -1px, 0) rotate(4deg) scale(0.99);
+  }
+  75% {
+    transform: translate3d(-1px, 1px, 0) rotate(-3deg) scale(1.01);
   }
 }
 
@@ -3178,6 +3380,14 @@ useHead({
   line-height: 1.05;
 }
 
+.station-description {
+  margin: 0 0 12px;
+  color: rgba(57, 83, 75, 0.72);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.36;
+}
+
 .step-tabs {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -3315,6 +3525,14 @@ useHead({
   margin: 0;
 }
 
+.mic-tip__actions {
+  display: flex;
+  flex: 0 0 auto;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
 .mic-tip__button {
   flex: 0 0 auto;
   min-height: 30px;
@@ -3328,9 +3546,19 @@ useHead({
   cursor: pointer;
 }
 
+.mic-tip__button--secondary {
+  border: 1px solid rgba(79, 159, 139, 0.26);
+  background: rgba(255, 255, 255, 0.52);
+  color: #45665c;
+}
+
 .mic-tip__button:disabled {
   cursor: default;
   opacity: 0.7;
+}
+
+.mic-tip--celebrating {
+  animation: birthday-control-swing 2100ms ease-in-out infinite;
 }
 
 @media (max-width: 420px) {
@@ -3366,6 +3594,23 @@ useHead({
   .mic-tip {
     width: calc(100vw - 32px);
     justify-content: space-between;
+  }
+
+  .mic-tip p {
+    flex: 1 1 100%;
+    max-width: none;
+    text-align: center;
+  }
+
+  .mic-tip__actions {
+    width: 100%;
+    gap: 6px;
+    justify-content: center;
+  }
+
+  .mic-tip__button {
+    padding: 0 8px;
+    font-size: 11px;
   }
 
   .station-header {
@@ -3540,6 +3785,22 @@ useHead({
   }
 }
 
+@keyframes birthday-control-swing {
+  0%,
+  100% {
+    transform: translateX(50%) translate3d(0, 0, 0) rotate(0deg);
+  }
+  25% {
+    transform: translateX(50%) translate3d(-2px, 1px, 0) rotate(-0.7deg);
+  }
+  50% {
+    transform: translateX(50%) translate3d(2px, -1px, 0) rotate(0.6deg);
+  }
+  75% {
+    transform: translateX(50%) translate3d(-1px, 0, 0) rotate(-0.3deg);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .passcode-cat,
   .cat-eye-shape,
@@ -3548,8 +3809,18 @@ useHead({
   .cat-ear--right,
   .cat-heart,
   .passcode-cat--success,
-  .passcode-cat--wrong {
+  .passcode-cat--wrong,
+  .birthday-confetti__piece,
+  .cake-stage--celebrating .cake-stage__cake-area,
+  .cake-stage--celebrating .placed-decoration--static img,
+  .mic-tip--celebrating {
     animation: none;
+  }
+
+  .birthday-confetti__piece {
+    top: 18%;
+    opacity: 0.9;
+    transform: rotate(var(--confetti-rotation));
   }
 
   .cat-paw,

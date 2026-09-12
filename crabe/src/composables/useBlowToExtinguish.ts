@@ -50,6 +50,12 @@ export function useBlowToExtinguish(options: UseBlowToExtinguishOptions) {
     loudSince = 0
   }
 
+  const resetListening = async () => {
+    await stopListening()
+    status.value = 'idle'
+    errorMessage.value = ''
+  }
+
   const handleBlow = async () => {
     options.onBlow()
     await stopListening()
@@ -151,6 +157,7 @@ export function useBlowToExtinguish(options: UseBlowToExtinguishOptions) {
   return {
     errorMessage,
     hasFallback: computed(() => status.value === 'denied' || status.value === 'unsupported'),
+    resetListening,
     startListening,
     status,
     stopListening,
