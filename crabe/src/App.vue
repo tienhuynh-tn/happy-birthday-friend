@@ -58,6 +58,10 @@ type IntroStep = 'greeting' | 'countdown' | 'message' | 'done'
 const PASSCODE = '1509'
 const BIRTHDAY_NAME = 'Mai Chi'
 const GREETING_DURATION = 12000
+const DECORATION_GUIDE_DURATION = 5000
+const DECORATION_CAKE_AREA_MIN = 200
+const DECORATION_CAKE_AREA_MAX = 260
+const DECORATION_CAKE_AREA_WIDTH_RATIO = 0.46
 const BIRTHDAY_MUSIC_SRC = './audio/song-1.mp3'
 const keypadNumbers = ['1', '2', '3', '4', '5', '6', '7', '8', '9']
 const introCountdownNumbers = [3, 2, 1]
@@ -228,6 +232,8 @@ const cakeBaked = ref(false)
 const flameOut = ref(false)
 const showCookingPanel = ref(false)
 const showPasscodeHint = ref(false)
+const showDecorationGuide = ref(true)
+const showDecorationCollection = ref(false)
 const isUnlocked = ref(false)
 const isMusicPlaying = ref(false)
 const decoratingConfirmed = ref(false)
@@ -251,6 +257,7 @@ let catReactionTimer: ReturnType<typeof setTimeout> | undefined
 let catReactionFrame: ReturnType<typeof requestAnimationFrame> | undefined
 let passcodeTimer: ReturnType<typeof setTimeout> | undefined
 let introTimer: ReturnType<typeof setTimeout> | undefined
+let decorationGuideTimer: ReturnType<typeof setTimeout> | undefined
 let decorationSequence = 0
 
 const activeStep = computed(() => cookingSteps[currentStepIndex.value])
@@ -269,6 +276,9 @@ const cookingToggleLabel = computed(() =>
 )
 const musicToggleLabel = computed(() =>
   isMusicPlaying.value ? 'Tắt nhạc sinh nhật' : 'Bật nhạc sinh nhật',
+)
+const decorationCollectionToggleLabel = computed(() =>
+  showDecorationCollection.value ? 'Đóng bộ sưu tập trang trí' : 'Mở bộ sưu tập trang trí',
 )
 const activeDecorationBackground = computed(() =>
   decorationBackgrounds.find(background => background.id === selectedDecorationBackground.value) || decorationBackgrounds[0],
@@ -310,6 +320,23 @@ const clearPasscodeTimer = () => {
 const clearIntroTimer = () => {
   if (introTimer)
     clearTimeout(introTimer)
+}
+
+const clearDecorationGuideTimer = () => {
+  if (decorationGuideTimer)
+    clearTimeout(decorationGuideTimer)
+}
+
+const queueDecorationGuideHide = () => {
+  clearDecorationGuideTimer()
+  decorationGuideTimer = setTimeout(() => {
+    showDecorationGuide.value = false
+  }, DECORATION_GUIDE_DURATION)
+}
+
+const revealDecorationGuide = () => {
+  showDecorationGuide.value = true
+  queueDecorationGuideHide()
 }
 
 const queueIntroStep = (step: IntroStep, delay: number) => {
@@ -354,22 +381,25 @@ const getDecorationSafeArea = () => {
   const stage = decorationStageRef.value
   if (!stage || stage.clientWidth === 0 || stage.clientHeight === 0) {
     return {
-      bottom: 88,
-      left: 22,
-      right: 78,
-      top: 20,
+      bottom: 62,
+      left: 24,
+      right: 76,
+      top: 38,
     }
   }
 
-  const safeWidth = clampNumber(stage.clientWidth * 0.28, 220, 360)
-  const safeHeight = clampNumber(stage.clientHeight * 0.68, 520, 600)
-  const left = ((stage.clientWidth - safeWidth) / 2 / stage.clientWidth) * 100
-  const top = ((stage.clientHeight - safeHeight) / 2 / stage.clientHeight) * 100
+  const safeSize = clampNumber(
+    stage.clientWidth * DECORATION_CAKE_AREA_WIDTH_RATIO,
+    DECORATION_CAKE_AREA_MIN,
+    DECORATION_CAKE_AREA_MAX,
+  )
+  const left = ((stage.clientWidth - safeSize) / 2 / stage.clientWidth) * 100
+  const top = ((stage.clientHeight - safeSize) / 2 / stage.clientHeight) * 100
 
   return {
-    bottom: top + (safeHeight / stage.clientHeight) * 100,
+    bottom: top + (safeSize / stage.clientHeight) * 100,
     left,
-    right: left + (safeWidth / stage.clientWidth) * 100,
+    right: left + (safeSize / stage.clientWidth) * 100,
     top,
   }
 }
@@ -447,6 +477,7 @@ const removeDecoration = (decorationId: string) => {
 
 const confirmDecorations = () => {
   selectedPlacedDecorationId.value = null
+  clearDecorationGuideTimer()
   decoratingConfirmed.value = true
 }
 
@@ -753,6 +784,13 @@ watch(introMessageIndex, () => {
     queueNextIntroMessage()
 })
 
+watch([isIntroComplete, decoratingConfirmed], ([introComplete, confirmed]) => {
+  if (introComplete && !confirmed)
+    revealDecorationGuide()
+  else
+    clearDecorationGuideTimer()
+})
+
 onMounted(() => {
   window.addEventListener('keydown', handlePasscodeKeydown)
   document.addEventListener('pointerdown', handlePasscodeOutsidePointerDown)
@@ -764,6 +802,7 @@ onBeforeUnmount(() => {
   clearCatReactionTimer()
   clearPasscodeTimer()
   clearIntroTimer()
+  clearDecorationGuideTimer()
   pauseBirthdayMusic()
 })
 
@@ -1209,7 +1248,7 @@ useHead({
       v-else-if="!decoratingConfirmed"
       class="decoration-screen"
       :style="decorationLayerStyle"
-      aria-labelledby="decoration-title"
+      aria-label="Trang trí sinh nhật"
     >
       <div ref="decorationStageRef" class="decoration-stage">
         <div class="decoration-layer" aria-hidden="true">
@@ -1250,19 +1289,54 @@ useHead({
         </div>
       </div>
 
-      <div class="decoration-guide">
+      <div v-if="showDecorationGuide" class="decoration-guide">
         <p class="decoration-kicker">
           Trang trí sinh nhật
         </p>
-        <h1 id="decoration-title">
+        <h1>
           Chọn đồ trang trí bên dưới nha
         </h1>
         <p>
-          Chạm để thêm vào màn hình, kéo để sắp xếp bên ngoài ô bánh. Chạm vào món đã đặt để bỏ về bộ sưu tập.
+          Nhấn nút ở góc dưới phải màn hình để mở kho trang trí. Chọn đồ vật để thêm vào màn hình, kéo đồ vật trên màn hình để trang trí (dành cho khu vực ngoài ô bánh). Nhấn dấu 'x' trên đồ vật để trả đồ vật lại vào kho. Sau khi hoàn tất hãy nhấn xác nhận.
         </p>
       </div>
+      <button
+        v-else
+        class="decoration-info-button"
+        type="button"
+        aria-label="Xem hướng dẫn trang trí sinh nhật"
+        @click="revealDecorationGuide"
+      >
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <circle cx="12" cy="12" r="9" />
+          <path d="M12 11v5" />
+          <path d="M12 8h.01" />
+        </svg>
+      </button>
 
-      <div class="decoration-collection">
+      <button
+        class="decoration-collection-toggle"
+        type="button"
+        :aria-label="decorationCollectionToggleLabel"
+        aria-controls="decoration-collection"
+        :aria-expanded="showDecorationCollection"
+        @click="showDecorationCollection = !showDecorationCollection"
+      >
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M5 4h14v4H5z" />
+          <path d="M5 10h14v10H5z" />
+          <path d="M8 14h3" />
+          <path d="M13 14h3" />
+          <path d="M8 17h3" />
+          <path d="M13 17h3" />
+        </svg>
+      </button>
+
+      <div
+        v-if="showDecorationCollection"
+        id="decoration-collection"
+        class="decoration-collection"
+      >
         <div class="background-picker" aria-label="Đổi nền trang trí">
           <button
             v-for="background in decorationBackgrounds"
@@ -1323,12 +1397,14 @@ useHead({
           >
         </div>
       </div>
-      <BirthdayCake
-        :cake-color="selectedColors.cakeColor"
-        :cream-color="selectedColors.creamColor"
-        :candle-color="selectedColors.candleColor"
-        :flame-out="flameOut"
-      />
+      <div class="cake-stage__cake-area">
+        <BirthdayCake
+          :cake-color="selectedColors.cakeColor"
+          :cream-color="selectedColors.creamColor"
+          :candle-color="selectedColors.candleColor"
+          :flame-out="flameOut"
+        />
+      </div>
     </div>
 
     <button
@@ -1446,6 +1522,7 @@ useHead({
 
 .birthday-shell {
   --edge-control-inset: max(18px, env(safe-area-inset-right));
+  --decoration-cake-area-size: clamp(200px, 46vw, 260px);
   --top-control-space: calc(max(18px, env(safe-area-inset-top)) + 58px);
   min-height: 100vh;
   min-height: 100svh;
@@ -1886,10 +1963,10 @@ useHead({
   top: 50%;
   left: 50%;
   display: grid;
-  width: clamp(220px, 28vw, 360px);
-  height: clamp(520px, 68svh, 600px);
+  width: var(--decoration-cake-area-size);
+  aspect-ratio: 1;
   border: 2px dashed rgba(79, 159, 139, 0.42);
-  border-radius: 28px 28px 22px 22px;
+  border-radius: 22px;
   background:
     linear-gradient(rgba(255, 250, 243, 0.36), rgba(255, 250, 243, 0.14)),
     repeating-linear-gradient(
@@ -2032,11 +2109,61 @@ useHead({
   line-height: 1.36;
 }
 
+.decoration-info-button,
+.decoration-collection-toggle {
+  position: fixed;
+  z-index: 4;
+  display: grid;
+  width: 42px;
+  height: 42px;
+  padding: 0;
+  border: 1px solid rgba(79, 159, 139, 0.24);
+  border-radius: 50%;
+  background: rgba(255, 250, 243, 0.82);
+  box-shadow: 0 12px 28px rgba(121, 82, 67, 0.14);
+  color: rgba(49, 84, 72, 0.76);
+  cursor: pointer;
+  place-items: center;
+  backdrop-filter: blur(12px);
+}
+
+.decoration-info-button {
+  top: max(16px, env(safe-area-inset-top));
+  left: 16px;
+}
+
+.decoration-collection-toggle {
+  right: 16px;
+  bottom: calc(max(18px, env(safe-area-inset-bottom)) + 58px);
+}
+
+.decoration-info-button:active,
+.decoration-collection-toggle:active {
+  transform: translateY(1px) scale(0.97);
+}
+
+.decoration-info-button:focus-visible,
+.decoration-collection-toggle:focus-visible {
+  outline: 3px solid rgba(79, 159, 139, 0.34);
+  outline-offset: 2px;
+}
+
+.decoration-info-button svg,
+.decoration-collection-toggle svg {
+  width: 22px;
+  height: 22px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2;
+}
+
 .decoration-collection {
   position: fixed;
   z-index: 4;
   right: 0;
-  bottom: calc(max(76px, env(safe-area-inset-bottom) + 76px));
+  bottom: calc(max(18px, env(safe-area-inset-bottom)) + 108px);
   left: 0;
   display: grid;
   gap: 8px;
@@ -2168,6 +2295,11 @@ useHead({
     width: 252px;
   }
 
+  .decoration-collection-toggle {
+    right: 18px;
+    bottom: 18px;
+  }
+
   .background-picker {
     width: auto;
     margin-left: 0;
@@ -2242,9 +2374,21 @@ useHead({
   z-index: 0;
 }
 
-.cake-stage :deep(.birthday) {
+.cake-stage__cake-area {
   position: relative;
+  width: var(--decoration-cake-area-size);
+  aspect-ratio: 1;
   z-index: 1;
+  pointer-events: none;
+}
+
+.cake-stage__cake-area :deep(.birthday) {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 1;
+  margin-top: -374px;
+  margin-left: -100px;
 }
 
 .passcode-screen {
