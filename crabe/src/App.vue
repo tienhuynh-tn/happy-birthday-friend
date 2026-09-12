@@ -62,6 +62,7 @@ const DECORATION_GUIDE_DURATION = 5000
 const DECORATION_CAKE_AREA_MIN = 200
 const DECORATION_CAKE_AREA_MAX = 260
 const DECORATION_CAKE_AREA_WIDTH_RATIO = 0.46
+const BLOW_INSTRUCTION_DELAY_MS = 5900
 const BIRTHDAY_MUSIC_PLAYLIST = [
   './audio/song-0.mp3',
   './audio/song-1.mp3',
@@ -122,6 +123,7 @@ const introMessageSlides = introMessages.map(message => ({
 }))
 const getMessageCharacters = (text: string) => Array.from(text)
 const DECORATION_ASSET_BASE = './img/birthday-decor'
+const CUSTOM_DECORATION_BACKGROUND_ID = 'custom'
 const decorationBackgrounds: DecorationBackground[] = [
   {
     id: 'cream',
@@ -132,11 +134,6 @@ const decorationBackgrounds: DecorationBackground[] = [
     id: 'sky',
     label: 'Trời xanh',
     value: 'radial-gradient(circle at 86% 12%, rgba(255,255,255,.92), transparent 24%), linear-gradient(165deg, #e8f6ff 0%, #cfe9fa 48%, #ffe5ed 100%)',
-  },
-  {
-    id: 'party',
-    label: 'Tiệc hồng',
-    value: 'radial-gradient(circle at 20% 70%, rgba(255,255,255,.72), transparent 25%), linear-gradient(150deg, #ffe9f1 0%, #f6c2d0 50%, #cfe8ff 100%)',
   },
   {
     id: 'mint',
@@ -267,6 +264,7 @@ const selectedColors = reactive({
 
 const currentStepIndex = ref(0)
 const cakeBaked = ref(false)
+const cakeReadyToBlow = ref(false)
 const flameOut = ref(false)
 const micPermissionDeclined = ref(false)
 const showCookingPanel = ref(false)
@@ -279,6 +277,7 @@ const shouldPlayBirthdayMusic = ref(false)
 const currentBirthdayMusicIndex = ref(0)
 const decoratingConfirmed = ref(false)
 const selectedDecorationBackground = ref(decorationBackgrounds[0].id)
+const customDecorationBackground = ref('#f8d7d9')
 const introStep = ref<IntroStep>('greeting')
 const introMessageIndex = ref(0)
 const enteredPasscode = ref('')
@@ -299,6 +298,7 @@ let catReactionFrame: ReturnType<typeof requestAnimationFrame> | undefined
 let passcodeTimer: ReturnType<typeof setTimeout> | undefined
 let introTimer: ReturnType<typeof setTimeout> | undefined
 let decorationGuideTimer: ReturnType<typeof setTimeout> | undefined
+let blowInstructionTimer: ReturnType<typeof setTimeout> | undefined
 let decorationSequence = 0
 
 const activeStep = computed(() => cookingSteps[currentStepIndex.value])
@@ -313,7 +313,7 @@ const showIntroSkip = computed(() =>
   && !(introStep.value === 'message' && introMessageIndex.value === finalIntroMessageIndex.value),
 )
 const cookingToggleLabel = computed(() =>
-  showCookingPanel.value ? 'Đóng trạm làm bánh' : 'Mở trạm làm bánh',
+  showCookingPanel.value ? 'Đang làm bánh' : 'Mở trạm làm bánh',
 )
 const musicToggleLabel = computed(() =>
   isMusicPlaying.value ? 'Tắt nhạc sinh nhật' : 'Bật nhạc sinh nhật',
@@ -322,11 +322,17 @@ const activeBirthdayMusicSrc = computed(() => BIRTHDAY_MUSIC_PLAYLIST[currentBir
 const decorationCollectionToggleLabel = computed(() =>
   showDecorationCollection.value ? 'Đóng bộ sưu tập trang trí' : 'Mở bộ sưu tập trang trí',
 )
-const activeDecorationBackground = computed(() =>
-  decorationBackgrounds.find(background => background.id === selectedDecorationBackground.value) || decorationBackgrounds[0],
-)
+const activeDecorationBackgroundValue = computed(() => {
+  if (selectedDecorationBackground.value === CUSTOM_DECORATION_BACKGROUND_ID)
+    return customDecorationBackground.value
+
+  return (
+    decorationBackgrounds.find(background => background.id === selectedDecorationBackground.value)
+    || decorationBackgrounds[0]
+  ).value
+})
 const decorationLayerStyle = computed(() => ({
-  '--decoration-background': activeDecorationBackground.value.value,
+  '--decoration-background': activeDecorationBackgroundValue.value,
 }))
 const passcodeLabel = computed(() => `Đã nhập ${enteredPasscode.value.length}/4 số mật mã`)
 const isPasscodeLocked = computed(() =>
@@ -367,6 +373,12 @@ const clearIntroTimer = () => {
 const clearDecorationGuideTimer = () => {
   if (decorationGuideTimer)
     clearTimeout(decorationGuideTimer)
+}
+
+const clearBlowInstructionTimer = () => {
+  if (blowInstructionTimer)
+    clearTimeout(blowInstructionTimer)
+  blowInstructionTimer = undefined
 }
 
 const queueDecorationGuideHide = () => {
@@ -778,11 +790,21 @@ const goBack = () => {
     currentStepIndex.value -= 1
 }
 
+const openCookingPanel = () => {
+  showCookingPanel.value = true
+}
+
 const goNext = () => {
   if (isLastStep.value) {
     cakeBaked.value = true
+    cakeReadyToBlow.value = false
     flameOut.value = false
     showCookingPanel.value = false
+    clearBlowInstructionTimer()
+    blowInstructionTimer = setTimeout(() => {
+      cakeReadyToBlow.value = true
+      blowInstructionTimer = undefined
+    }, BLOW_INSTRUCTION_DELAY_MS)
     return
   }
 
@@ -900,6 +922,7 @@ onBeforeUnmount(() => {
   clearPasscodeTimer()
   clearIntroTimer()
   clearDecorationGuideTimer()
+  clearBlowInstructionTimer()
   pauseBirthdayMusic()
 })
 
@@ -1434,6 +1457,9 @@ useHead({
         class="decoration-collection"
       >
         <div class="background-picker" aria-label="Đổi nền trang trí">
+          <p class="background-picker__label">
+            Màu nền
+          </p>
           <button
             v-for="background in decorationBackgrounds"
             :key="background.id"
@@ -1447,9 +1473,28 @@ useHead({
             <span class="background-chip__swatch" aria-hidden="true" />
             <span>{{ background.label }}</span>
           </button>
+          <label
+            class="background-chip background-chip--custom"
+            :class="{ 'background-chip--active': selectedDecorationBackground === CUSTOM_DECORATION_BACKGROUND_ID }"
+            :style="{ '--background-chip': customDecorationBackground }"
+          >
+            <span class="background-chip__swatch" aria-hidden="true" />
+            <span>Màu khác</span>
+            <input
+              v-model="customDecorationBackground"
+              class="background-chip__input"
+              type="color"
+              aria-label="Chọn màu nền khác"
+              @input="selectedDecorationBackground = CUSTOM_DECORATION_BACKGROUND_ID"
+            >
+          </label>
         </div>
 
-        <div class="decoration-tray" aria-label="Bộ sưu tập đồ trang trí">
+        <p id="decoration-tray-title" class="decoration-tray-title">
+          Đồ trang trí
+        </p>
+
+        <div class="decoration-tray" aria-labelledby="decoration-tray-title">
           <button
             v-for="asset in decorationAssets"
             :key="asset.id"
@@ -1526,7 +1571,7 @@ useHead({
       :aria-label="cookingToggleLabel"
       aria-controls="cake-cooking-station"
       :aria-expanded="showCookingPanel"
-      @click="showCookingPanel = !showCookingPanel"
+      @click="openCookingPanel"
     >
       <span aria-hidden="true">🍳</span>
     </button>
@@ -1604,14 +1649,23 @@ useHead({
       </div>
     </section>
 
+    <button
+      v-if="isUnlocked && isIntroComplete && cakeReadyToBlow && flameOut"
+      class="mic-tip-icon"
+      type="button"
+      aria-label="Nến đã tắt. Bấm để thổi lại."
+      @click="resetCandleBlow"
+    >
+      <span aria-hidden="true">🎉</span>
+    </button>
+
     <div
-      v-if="isUnlocked && isIntroComplete && cakeBaked"
+      v-else-if="isUnlocked && isIntroComplete && cakeReadyToBlow"
       class="mic-tip"
-      :class="{ 'mic-tip--celebrating': flameOut }"
       aria-live="polite"
     >
       <p>{{ micHint }}</p>
-      <div v-if="!showMicFallback || flameOut" class="mic-tip__actions">
+      <div v-if="!showMicFallback" class="mic-tip__actions">
         <button
           class="mic-tip__button"
           type="button"
@@ -2318,6 +2372,16 @@ useHead({
   pointer-events: auto;
 }
 
+.background-picker__label {
+  flex: 1 0 100%;
+  margin: 0 2px;
+  color: rgba(49, 84, 72, 0.78);
+  font-size: 11px;
+  font-weight: 900;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
 .background-chip {
   display: flex;
   flex: 0 0 auto;
@@ -2337,6 +2401,10 @@ useHead({
   backdrop-filter: blur(12px);
 }
 
+.background-chip--custom {
+  position: relative;
+}
+
 .background-chip--active {
   border-color: rgba(79, 159, 139, 0.6);
   color: #315448;
@@ -2348,6 +2416,27 @@ useHead({
   border: 1px solid rgba(49, 84, 72, 0.12);
   border-radius: 50%;
   background: var(--background-chip);
+}
+
+.background-chip__input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.decoration-tray-title {
+  width: min(380px, calc(100vw - 32px));
+  margin: 0 0 -4px 18px;
+  color: rgba(49, 84, 72, 0.78);
+  font-size: 11px;
+  font-weight: 900;
+  line-height: 1;
+  text-transform: uppercase;
+  pointer-events: auto;
 }
 
 .decoration-tray {
@@ -2436,6 +2525,11 @@ useHead({
   .background-picker {
     width: auto;
     margin-left: 0;
+  }
+
+  .decoration-tray-title {
+    width: auto;
+    margin-left: 2px;
   }
 
   .decoration-tray {
@@ -3560,8 +3654,32 @@ useHead({
   opacity: 0.7;
 }
 
-.mic-tip--celebrating {
-  animation: birthday-control-swing 2100ms ease-in-out infinite;
+.mic-tip-icon {
+  position: fixed;
+  right: var(--edge-control-inset);
+  bottom: max(20px, env(safe-area-inset-bottom));
+  z-index: 3;
+  display: grid;
+  width: 48px;
+  height: 48px;
+  padding: 0;
+  border: 1px solid rgba(79, 159, 139, 0.26);
+  border-radius: 50%;
+  background: rgba(255, 248, 239, 0.86);
+  box-shadow: 0 10px 26px rgba(121, 82, 67, 0.14);
+  color: #315448;
+  font: inherit;
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+  place-items: center;
+  backdrop-filter: blur(12px);
+  animation: birthday-icon-swing 2100ms ease-in-out infinite;
+}
+
+.mic-tip-icon:focus-visible {
+  outline: 3px solid rgba(79, 159, 139, 0.34);
+  outline-offset: 2px;
 }
 
 @media (max-width: 1024px) {
@@ -3870,6 +3988,22 @@ useHead({
   }
 }
 
+@keyframes birthday-icon-swing {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) rotate(0deg);
+  }
+  25% {
+    transform: translate3d(-1px, 1px, 0) rotate(-0.7deg);
+  }
+  50% {
+    transform: translate3d(1px, -1px, 0) rotate(0.6deg);
+  }
+  75% {
+    transform: translate3d(-1px, 0, 0) rotate(-0.3deg);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .passcode-cat,
   .cat-eye-shape,
@@ -3882,7 +4016,7 @@ useHead({
   .birthday-confetti__piece,
   .cake-stage--celebrating .cake-stage__cake-area,
   .cake-stage--celebrating .placed-decoration--static img,
-  .mic-tip--celebrating {
+  .mic-tip-icon {
     animation: none;
   }
 
