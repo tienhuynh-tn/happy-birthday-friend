@@ -1475,7 +1475,7 @@ useHead({
     <div
       v-else
       class="cake-stage"
-      :class="{ 'cake-stage--celebrating': flameOut }"
+      :class="{ 'cake-stage--celebrating': flameOut, 'cake-stage--cooking': !cakeBaked && showCookingPanel }"
       :style="decorationLayerStyle"
       role="img"
       aria-label="Bánh sinh nhật có nến"
@@ -3347,6 +3347,7 @@ useHead({
   right: var(--edge-control-inset);
   width: min(360px, calc(100vw - 28px));
   padding: 12px;
+  box-sizing: border-box;
   border: 1px solid rgba(79, 159, 139, 0.26);
   border-radius: 16px;
   background: rgba(255, 250, 243, 0.9);
@@ -3505,10 +3506,12 @@ useHead({
   right: 50%;
   bottom: max(20px, env(safe-area-inset-bottom));
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 10px;
   max-width: calc(100vw - 32px);
   padding: 9px 10px;
+  box-sizing: border-box;
   border: 1px solid rgba(79, 159, 139, 0.22);
   border-radius: 999px;
   background: rgba(255, 248, 239, 0.82);
@@ -3561,7 +3564,49 @@ useHead({
   animation: birthday-control-swing 2100ms ease-in-out infinite;
 }
 
-@media (max-width: 420px) {
+@media (max-width: 1024px) {
+  .cake-stage--cooking {
+    align-content: center;
+    padding-top: calc(var(--top-control-space) + 18px);
+    padding-bottom: clamp(280px, 36svh, 360px);
+    place-items: center;
+  }
+
+  .cake-stage--cooking .cake-stage__cake-area {
+    transform: none;
+  }
+
+  .chef-station {
+    top: auto;
+    right: 10px;
+    bottom: max(10px, env(safe-area-inset-bottom));
+    left: 10px;
+    width: auto;
+    max-height: 45svh;
+    padding: 10px;
+    border-radius: 18px;
+    overflow-y: auto;
+  }
+
+  .station-description {
+    margin-bottom: 10px;
+    font-size: 11px;
+  }
+
+  .step-tabs {
+    margin-bottom: 10px;
+  }
+
+  .custom-color {
+    margin-top: 8px;
+  }
+
+  .station-actions {
+    margin-top: 10px;
+  }
+}
+
+@media (max-width: 480px) {
   .passcode-screen {
     padding: 24px 14px;
   }
@@ -3593,7 +3638,12 @@ useHead({
 
   .mic-tip {
     width: calc(100vw - 32px);
-    justify-content: space-between;
+    display: grid;
+    grid-template-columns: 1fr;
+    justify-content: stretch;
+    gap: 8px;
+    padding: 10px;
+    border-radius: 18px;
   }
 
   .mic-tip p {
@@ -3603,14 +3653,18 @@ useHead({
   }
 
   .mic-tip__actions {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     width: 100%;
     gap: 6px;
-    justify-content: center;
   }
 
   .mic-tip__button {
+    width: 100%;
+    min-width: 0;
     padding: 0 8px;
     font-size: 11px;
+    white-space: nowrap;
   }
 
   .station-header {
@@ -3624,6 +3678,21 @@ useHead({
   .color-chip {
     min-width: 0;
     font-size: 11px;
+  }
+}
+
+@media (max-width: 360px) {
+  .mic-tip {
+    right: 10px;
+    left: 10px;
+    width: auto;
+    max-width: none;
+    transform: none;
+  }
+
+  .mic-tip__button {
+    padding: 0 6px;
+    font-size: 10px;
   }
 }
 
