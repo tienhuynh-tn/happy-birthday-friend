@@ -377,6 +377,23 @@ const clampNumber = (value: number, min: number, max: number) => Math.min(max, M
 const findDecorationAsset = (assetId: string) =>
   decorationAssets.find(asset => asset.id === assetId) || decorationAssets[0]
 
+const getDecorationPadding = (size: number) => {
+  const stage = decorationStageRef.value
+  if (!stage || stage.clientWidth === 0 || stage.clientHeight === 0) {
+    return {
+      horizontal: clampNumber(size / 2, 5, 17),
+      vertical: clampNumber(size / 2, 5, 14),
+    }
+  }
+
+  const decorationSize = clampNumber(stage.clientWidth * (size / 100), 58, 176)
+
+  return {
+    horizontal: (decorationSize / 2 / stage.clientWidth) * 100,
+    vertical: (decorationSize / 2 / stage.clientHeight) * 100,
+  }
+}
+
 const getDecorationSafeArea = () => {
   const stage = decorationStageRef.value
   if (!stage || stage.clientWidth === 0 || stage.clientHeight === 0) {
@@ -405,12 +422,9 @@ const getDecorationSafeArea = () => {
 }
 
 const keepDecorationOutsideCakeArea = (point: DecorationPoint, size: number): DecorationPoint => {
-  const stage = decorationStageRef.value
-  const stageRatio = stage && stage.clientHeight > 0
-    ? stage.clientWidth / stage.clientHeight
-    : 0.46
-  const horizontalPadding = clampNumber(size / 2 + 1.2, 5, 17)
-  const verticalPadding = clampNumber((size * stageRatio) / 2 + 1.2, 5, 14)
+  const decorationPadding = getDecorationPadding(size)
+  const horizontalPadding = decorationPadding.horizontal
+  const verticalPadding = decorationPadding.vertical
   const x = clampNumber(point.x, horizontalPadding, 100 - horizontalPadding)
   const y = clampNumber(point.y, verticalPadding, 100 - verticalPadding)
   const decorationSafeArea = getDecorationSafeArea()
@@ -2112,7 +2126,7 @@ useHead({
 .decoration-info-button,
 .decoration-collection-toggle {
   position: fixed;
-  z-index: 4;
+  z-index: 6;
   display: grid;
   width: 42px;
   height: 42px;
@@ -2297,7 +2311,7 @@ useHead({
 
   .decoration-collection-toggle {
     right: 18px;
-    bottom: 18px;
+    bottom: calc(max(18px, env(safe-area-inset-bottom)) + 58px);
   }
 
   .background-picker {
