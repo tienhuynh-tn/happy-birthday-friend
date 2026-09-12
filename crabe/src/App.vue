@@ -62,7 +62,11 @@ const DECORATION_GUIDE_DURATION = 5000
 const DECORATION_CAKE_AREA_MIN = 200
 const DECORATION_CAKE_AREA_MAX = 260
 const DECORATION_CAKE_AREA_WIDTH_RATIO = 0.46
-const BIRTHDAY_MUSIC_SRC = './audio/song-1.mp3'
+const BIRTHDAY_MUSIC_PLAYLIST = [
+  './audio/song-0.mp3',
+  './audio/song-1.mp3',
+  './audio/song-2.mp3',
+]
 const keypadNumbers = ['1', '2', '3', '4', '5', '6', '7', '8', '9']
 const introCountdownNumbers = [3, 2, 1]
 const introMessages: IntroMessage[] = [
@@ -236,6 +240,7 @@ const showDecorationGuide = ref(true)
 const showDecorationCollection = ref(false)
 const isUnlocked = ref(false)
 const isMusicPlaying = ref(false)
+const currentBirthdayMusicIndex = ref(0)
 const decoratingConfirmed = ref(false)
 const selectedDecorationBackground = ref(decorationBackgrounds[0].id)
 const introStep = ref<IntroStep>('greeting')
@@ -277,6 +282,7 @@ const cookingToggleLabel = computed(() =>
 const musicToggleLabel = computed(() =>
   isMusicPlaying.value ? 'Tắt nhạc sinh nhật' : 'Bật nhạc sinh nhật',
 )
+const activeBirthdayMusicSrc = computed(() => BIRTHDAY_MUSIC_PLAYLIST[currentBirthdayMusicIndex.value])
 const decorationCollectionToggleLabel = computed(() =>
   showDecorationCollection.value ? 'Đóng bộ sưu tập trang trí' : 'Mở bộ sưu tập trang trí',
 )
@@ -552,7 +558,7 @@ const playBirthdayMusic = async () => {
   if (!audio)
     return
 
-  audio.loop = true
+  audio.loop = false
 
   try {
     await audio.play()
@@ -578,6 +584,17 @@ const toggleBirthdayMusic = () => {
     return
   }
 
+  playBirthdayMusic()
+}
+
+const playNextBirthdaySong = () => {
+  const audio = birthdayMusicRef.value
+  if (!audio)
+    return
+
+  currentBirthdayMusicIndex.value = (currentBirthdayMusicIndex.value + 1) % BIRTHDAY_MUSIC_PLAYLIST.length
+  audio.src = activeBirthdayMusicSrc.value
+  audio.currentTime = 0
   playBirthdayMusic()
 }
 
@@ -834,12 +851,11 @@ useHead({
     <audio
       ref="birthdayMusicRef"
       class="birthday-music"
-      :src="BIRTHDAY_MUSIC_SRC"
-      loop
+      :src="activeBirthdayMusicSrc"
       preload="auto"
       @play="isMusicPlaying = true"
       @pause="isMusicPlaying = false"
-      @ended="isMusicPlaying = false"
+      @ended="playNextBirthdaySong"
       @error="isMusicPlaying = false"
     />
 
