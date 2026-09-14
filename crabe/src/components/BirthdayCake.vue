@@ -3,17 +3,19 @@ const props = withDefaults(defineProps<{
   cakeColor?: string
   candleColor?: string
   creamColor?: string
+  flameImmediate?: boolean
   flameOut?: boolean
 }>(), {
   cakeColor: '#8fcfbd',
   candleColor: '#fbfff8',
   creamColor: '#fff4d6',
+  flameImmediate: false,
 })
 </script>
 
 <template>
   <div class="birthday">
-    <div class="velas" :class="{ 'velas--out': props.flameOut }">
+    <div class="velas" :class="{ 'velas--lit': props.flameImmediate, 'velas--out': props.flameOut }">
       <div class="fuego" />
       <div class="fuego" />
       <div class="fuego" />
@@ -332,6 +334,22 @@ const props = withDefaults(defineProps<{
 }
 .fuego:nth-child(5) {
   animation: fuego 0.2s 5.9s infinite;
+}
+
+.velas--lit .fuego:nth-child(1) {
+  animation: fuego 2s infinite;
+}
+.velas--lit .fuego:nth-child(2) {
+  animation: fuego 1.5s infinite;
+}
+.velas--lit .fuego:nth-child(3) {
+  animation: fuego 1s infinite;
+}
+.velas--lit .fuego:nth-child(4) {
+  animation: fuego 0.5s infinite;
+}
+.velas--lit .fuego:nth-child(5) {
+  animation: fuego 0.2s infinite;
 }
 
 .velas--out .fuego {

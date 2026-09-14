@@ -266,6 +266,7 @@ const currentStepIndex = ref(0)
 const cakeBaked = ref(false)
 const cakeReadyToBlow = ref(false)
 const flameOut = ref(false)
+const isCelebrating = ref(false)
 const micPermissionDeclined = ref(false)
 const showCookingPanel = ref(false)
 const showPasscodeHint = ref(false)
@@ -305,13 +306,7 @@ const activeStep = computed(() => cookingSteps[currentStepIndex.value])
 const isFirstStep = computed(() => currentStepIndex.value === 0)
 const isLastStep = computed(() => currentStepIndex.value === cookingSteps.length - 1)
 const isIntroComplete = computed(() => introStep.value === 'done')
-const finalIntroMessageIndex = computed(() => introMessageSlides.length - 1)
 const activeIntroMessage = computed(() => introMessageSlides[introMessageIndex.value])
-const showIntroSkip = computed(() =>
-  isUnlocked.value
-  && !isIntroComplete.value
-  && !(introStep.value === 'message' && introMessageIndex.value === finalIntroMessageIndex.value),
-)
 const cookingToggleLabel = computed(() =>
   showCookingPanel.value ? 'Đang làm bánh' : 'Mở trạm làm bánh',
 )
@@ -418,12 +413,6 @@ const startIntroSequence = () => {
   introStep.value = 'countdown'
   introMessageIndex.value = 0
   queueIntroStep('greeting', 4200)
-}
-
-const skipToDecoratingIntro = () => {
-  clearIntroTimer()
-  introMessageIndex.value = finalIntroMessageIndex.value
-  introStep.value = 'message'
 }
 
 const clampNumber = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value))
@@ -776,8 +765,10 @@ const handlePasscodePointerMove = (event: PointerEvent) => {
 
 const selectColor = (color: string) => {
   selectedColors[activeStep.value.id] = color
-  if (flameOut.value)
+  if (flameOut.value) {
     flameOut.value = false
+    isCelebrating.value = false
+  }
 }
 
 const updateCustomColor = (event: Event) => {
@@ -799,6 +790,7 @@ const goNext = () => {
     cakeBaked.value = true
     cakeReadyToBlow.value = false
     flameOut.value = false
+    isCelebrating.value = false
     showCookingPanel.value = false
     clearBlowInstructionTimer()
     blowInstructionTimer = setTimeout(() => {
@@ -813,6 +805,7 @@ const goNext = () => {
 
 const extinguishFlame = () => {
   flameOut.value = true
+  isCelebrating.value = true
 }
 
 const {
@@ -1344,23 +1337,6 @@ useHead({
         </p>
       </div>
 
-      <button
-        v-if="showIntroSkip"
-        class="intro-skip"
-        type="button"
-        aria-label="Bỏ qua tới phần trang trí bánh"
-        @click="skipToDecoratingIntro"
-      >
-        <svg
-          class="intro-skip__icon"
-          viewBox="0 0 24 24"
-          aria-hidden="true"
-        >
-          <path d="M5 5v14l8-7z" />
-          <path d="M15 5v14" />
-          <path d="M19 5v14" />
-        </svg>
-      </button>
     </section>
 
     <section
@@ -1520,7 +1496,7 @@ useHead({
     <div
       v-else
       class="cake-stage"
-      :class="{ 'cake-stage--celebrating': flameOut, 'cake-stage--cooking': !cakeBaked && showCookingPanel }"
+      :class="{ 'cake-stage--celebrating': isCelebrating, 'cake-stage--cooking': !cakeBaked && showCookingPanel }"
       :style="decorationLayerStyle"
       role="img"
       aria-label="Bánh sinh nhật có nến"
@@ -1544,10 +1520,11 @@ useHead({
           :cake-color="selectedColors.cakeColor"
           :cream-color="selectedColors.creamColor"
           :candle-color="selectedColors.candleColor"
+          :flame-immediate="isCelebrating && !flameOut"
           :flame-out="flameOut"
         />
       </div>
-      <div v-if="flameOut" class="birthday-confetti" aria-hidden="true">
+      <div v-if="isCelebrating" class="birthday-confetti" aria-hidden="true">
         <span
           v-for="(piece, index) in birthdayConfetti"
           :key="`${piece.x}-${index}`"
@@ -1653,10 +1630,10 @@ useHead({
       v-if="isUnlocked && isIntroComplete && cakeReadyToBlow && flameOut"
       class="mic-tip-icon"
       type="button"
-      aria-label="Nến đã tắt. Bấm để thổi lại."
+      aria-label="Thắp nến lại để thổi tiếp."
       @click="resetCandleBlow"
     >
-      <span aria-hidden="true">🎉</span>
+      <span aria-hidden="true">🕯️</span>
     </button>
 
     <div
@@ -1683,6 +1660,7 @@ useHead({
           Không cho phép
         </button>
         <button
+          v-if="isCelebrating"
           class="mic-tip__button mic-tip__button--secondary"
           type="button"
           @click="resetCandleBlow"
@@ -1773,45 +1751,6 @@ useHead({
   place-items: center;
   overflow: hidden;
   color: #315448;
-}
-
-.intro-skip {
-  position: fixed;
-  right: var(--edge-control-inset);
-  bottom: max(22px, env(safe-area-inset-bottom));
-  z-index: 6;
-  display: grid;
-  width: 42px;
-  height: 42px;
-  padding: 0;
-  border: 1px solid rgba(79, 159, 139, 0.24);
-  border-radius: 50%;
-  background: rgba(255, 250, 243, 0.82);
-  box-shadow: 0 12px 28px rgba(121, 82, 67, 0.14);
-  color: rgba(49, 84, 72, 0.76);
-  cursor: pointer;
-  place-items: center;
-  backdrop-filter: blur(12px);
-  transition: background 180ms ease, color 180ms ease, transform 180ms ease;
-}
-
-.intro-skip:active {
-  transform: translateY(1px) scale(0.97);
-}
-
-.intro-skip:focus-visible {
-  outline: 3px solid rgba(79, 159, 139, 0.34);
-  outline-offset: 2px;
-}
-
-.intro-skip__icon {
-  width: 21px;
-  height: 21px;
-  fill: none;
-  stroke: currentColor;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  stroke-width: 2;
 }
 
 .intro-card {
