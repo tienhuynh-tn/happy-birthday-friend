@@ -931,7 +931,7 @@ onBeforeUnmount(() => {
 // they will be rendered correctly in the html results with vite-ssg
 useHead({
   title: '🦀 🎂',
-  meta: [{ name: 'description', content: 'Bánh sinh nhật và nến dành cho Crabe.' }],
+  meta: [{ name: 'description', content: 'For u' }],
 })
 </script>
 
