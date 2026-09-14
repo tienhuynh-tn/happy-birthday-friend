@@ -5,11 +5,13 @@ const props = withDefaults(defineProps<{
   creamColor?: string
   flameImmediate?: boolean
   flameOut?: boolean
+  name?: string
 }>(), {
   cakeColor: '#8fcfbd',
   candleColor: '#fbfff8',
   creamColor: '#fff4d6',
   flameImmediate: false,
+  name: '',
 })
 </script>
 
@@ -252,6 +254,7 @@ const props = withDefaults(defineProps<{
         />
       </path>
     </svg>
+    <span v-if="props.name" class="cake-name">{{ props.name }}</span>
   </div>
 </template>
 
@@ -271,6 +274,24 @@ const props = withDefaults(defineProps<{
   overflow: hidden;
   position: relative;
   margin: 0 auto;
+}
+
+.cake-name {
+  color: #315448;
+  font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+  font-size: 42px;
+  font-weight: 700;
+  left: 50%;
+  line-height: 1;
+  max-width: none;
+  pointer-events: none;
+  position: absolute;
+  text-align: center;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.72);
+  top: 200px;
+  transform: translateX(-50%) rotate(0deg);
+  white-space: nowrap;
+  z-index: 2;
 }
 
 // Candle

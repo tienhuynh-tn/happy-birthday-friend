@@ -1522,6 +1522,7 @@ useHead({
           :candle-color="selectedColors.candleColor"
           :flame-immediate="isCelebrating && !flameOut"
           :flame-out="flameOut"
+          :name="BIRTHDAY_NAME"
         />
       </div>
       <div v-if="isCelebrating" class="birthday-confetti" aria-hidden="true">
